@@ -1,0 +1,156 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Document Library</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Manage company policies, contracts, and templates.</p>
+        </div>
+        <button (click)="openUploadModal()" class="btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-upload w-5 h-5" aria-hidden="true"></i>
+            <span>Upload Document</span>
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <div class="relative w-full sm:w-64">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="loadDocuments()"
+                placeholder="Search documents..." class="input pl-10">
+        </div>
+
+        <div class="w-full sm:w-64">
+            <app-dropdown [(ngModel)]="selectedCategory" [options]="categoryFilterOptions()"
+                placeholder="Filter by Category" [searchable]="true">
+            </app-dropdown>
+        </div>
+    </div>
+
+    <!-- Document Grid -->
+    <div *ngIf="filteredDocs.length > 0; else emptyState"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div *ngFor="let doc of filteredDocs"
+            class="card hover:shadow-lg transition-shadow duration-200 cursor-pointer group relative">
+
+            <!-- Document Icon -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="p-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600">
+                    <i class="fas fa-file-alt text-2xl"></i>
+                </div>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                    <button (click)="downloadDocument(doc)" class="p-2 text-gray-400 hover:text-primary-600"
+                        title="Download">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button (click)="deleteDocument(doc.id)" class="p-2 text-gray-400 hover:text-red-600"
+                        title="Delete">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-1 truncate">{{ doc.title }}</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">{{ doc.description }}</p>
+
+            <div class="flex items-center justify-between text-xs text-gray-500">
+                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ doc.category_name }}</span>
+                <!-- File size not available in API response yet -->
+            </div>
+
+            <div
+                class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs">
+                <span class="flex items-center gap-1">
+                    <i class="fas fa-user-circle"></i>
+                    {{ doc.uploaded_by_name }}
+                </span>
+                <span>{{ doc.uploaded_at | date:'mediumDate' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #emptyState>
+        <div class="text-center py-12">
+            <div
+                class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-folder-open text-2xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No documents found</h3>
+            <p class="text-gray-500 dark:text-gray-400">Upload a new document to get started</p>
+        </div>
+    </ng-template>
+</div>
+
+<!-- Upload Modal -->
+<div *ngIf="showUploadModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+        class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shrink-0">
+            <h3 class="text-xl font-bold font-heading text-gray-800 dark:text-white">Upload Document</h3>
+            <button (click)="closeUploadModal()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Document Title</label>
+                <input type="text" [ngModel]="uploadForm().title" (ngModelChange)="updateFormTitle($event)"
+                    class="input" placeholder="e.g. Employee Handbook 2024">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                <textarea [ngModel]="uploadForm().description" (ngModelChange)="updateFormDescription($event)" rows="3"
+                    class="input resize-none" placeholder="Brief description..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <app-dropdown label="Category" [options]="uploadCategoryOptions()" [ngModel]="uploadForm().category"
+                        (ngModelChange)="updateFormCategory($event)" placeholder="Select Category">
+                    </app-dropdown>
+                </div>
+                <div>
+                    <app-dropdown label="Visibility" [options]="visibilityOptions()" [ngModel]="uploadForm().visibility"
+                        (ngModelChange)="updateFormVisibility($event)" placeholder="Select Visibility">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File</label>
+                <div
+                    class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-primary-500 transition-colors cursor-pointer relative group">
+                    <input type="file" (change)="onFileSelected($event)"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="space-y-1 text-center pointer-events-none">
+                        <i
+                            class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2 group-hover:text-primary-500 transition-colors"></i>
+                        <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                            <span class="font-medium text-primary-600 group-hover:text-primary-500 font-bold">Click to
+                                upload</span>
+                            <span class="pl-1">or drag and drop</span>
+                        </div>
+                        <p class="text-xs text-gray-500" *ngIf="!uploadForm().file">PDF, DOC, XLS up to 10MB</p>
+                        <p class="text-sm font-medium text-green-600" *ngIf="uploadForm().file">
+                            <i class="fas fa-check-circle mr-1"></i> {{ uploadForm().file?.name }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 shrink-0">
+            <button (click)="closeUploadModal()"
+                class="px-5 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors font-medium border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+                Cancel
+            </button>
+            <button (click)="submitUpload()" class="btn-primary">
+                Upload Document
+            </button>
+        </div>
+    </div>
+</div>

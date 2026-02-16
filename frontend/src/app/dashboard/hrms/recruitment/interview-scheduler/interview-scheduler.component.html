@@ -1,0 +1,106 @@
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Interview Scheduler</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage interviews and calendar.</p>
+        </div>
+        <button (click)="openModal()"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm font-medium">
+            Schedule Interview
+        </button>
+    </div>
+
+    <!-- Interviews List (Calendar View Placeholder) -->
+    <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold text-gray-900 dark:text-white">Upcoming Interviews</h3>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div *ngFor="let interview of interviews()"
+                class="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg">
+                        {{ interview.start_time | date:'d' }}
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">
+                            Interview with Candidate (ID: {{ interview.candidate_name || 'N/A' }})
+                        </h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ interview.start_time | date:'short' }} - {{ interview.end_time | date:'shortTime' }}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">Interviewer: {{ interview.interviewer_name }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a *ngIf="interview.link" [href]="interview.link" target="_blank"
+                        class="text-blue-600 hover:underline text-sm">Join Link</a>
+                    <span class="px-2 py-1 text-xs font-medium rounded uppercase" [ngClass]="{
+                            'bg-blue-100 text-blue-800': interview.status === 'SCHEDULED',
+                            'bg-green-100 text-green-800': interview.status === 'COMPLETED',
+                            'bg-red-100 text-red-800': interview.status === 'CANCELLED'
+                        }">
+                        {{ interview.status }}
+                    </span>
+                </div>
+            </div>
+            <div *ngIf="interviews().length === 0" class="p-6 text-center text-gray-500">
+                No scheduled interviews.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Modal -->
+<div *ngIf="showModal()" class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" (click)="closeModal()"></div>
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all w-full max-w-lg p-6 relative z-10">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Schedule Interview</h3>
+            <form [formGroup]="interviewForm" (ngSubmit)="onSubmit()">
+                <div class="space-y-4">
+                    <div>
+                        <app-dropdown label="Candidate (Application)" formControlName="application"
+                            [options]="applicationOptions()" placeholder="Select Candidate" [searchable]="true">
+                        </app-dropdown>
+                    </div>
+
+                    <div>
+                        <app-dropdown label="Interviewer" formControlName="interviewer" [options]="interviewerOptions()"
+                            placeholder="Select Interviewer" [searchable]="true">
+                        </app-dropdown>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
+                            <input type="datetime-local" formControlName="start_time"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
+                            <input type="datetime-local" formControlName="end_time"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm p-2">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Meeting Link</label>
+                        <input type="url" formControlName="link"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm p-2"
+                            placeholder="https://zoom.us/...">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" (click)="closeModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Cancel</button>
+                    <button type="submit" [disabled]="interviewForm.invalid"
+                        class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700">Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

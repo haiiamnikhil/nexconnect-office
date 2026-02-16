@@ -1,0 +1,77 @@
+<section class="py-20 bg-gray-900 text-white relative overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10">
+    </div>
+    <div
+        class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-600 rounded-full blur-[100px] opacity-20 -mr-20 -mt-20">
+    </div>
+    <div
+        class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600 rounded-full blur-[100px] opacity-20 -ml-20 -mb-20">
+    </div>
+
+    <div class="container mx-auto px-4 md:px-6 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+
+            <div class="flex-1 space-y-8">
+                <!-- Text Content -->
+                <div class="max-w-3xl text-left relative z-10">
+                    <h2 class="text-primary-600 font-semibold tracking-wide uppercase text-sm mb-3">Why Choose
+                        NexConnect?
+                    </h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-heading">
+                        Built for the modern enterprise.
+                    </h3>
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        Connect your people, processes, and data with the platform designed for growth.
+                    </p>
+                </div>
+                <!-- List of Reasons -->
+                <div class="space-y-6">
+                    <div *ngFor="let reason of reasons" class="flex gap-4">
+                        <div
+                            class="flex-shrink-0 w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-primary-400 border border-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="reason.icon" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-white mb-2">{{ reason.title }}</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">{{ reason.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Content -->
+            <div class="flex-1 w-full relative">
+                <div class="relative rounded-2xl bg-gray-800 border border-gray-700 p-2 shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000"
+                        alt="Sentura Analytics Dashboard" class="rounded-xl w-full h-full object-cover">
+
+                    <!-- Floating Badge -->
+                    <div
+                        class="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl text-gray-900 border border-gray-100 hidden md:block">
+                        <div class="flex items-center gap-3">
+                            <div class="flex -space-x-3">
+                                <img class="w-10 h-10 rounded-full border-2 border-white"
+                                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=50&h=50"
+                                    alt="User">
+                                <img class="w-10 h-10 rounded-full border-2 border-white"
+                                    src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=50&h=50"
+                                    alt="User">
+                                <img class="w-10 h-10 rounded-full border-2 border-white"
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=50&h=50"
+                                    alt="User">
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm">Team Collaboration</p>
+                                <p class="text-xs text-green-600 font-semibold">Active Now</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

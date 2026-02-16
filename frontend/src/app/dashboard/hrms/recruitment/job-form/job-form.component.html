@@ -1,0 +1,105 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <a routerLink="/dashboard/recruitment/jobs"
+                    class="text-gray-500 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <span class="text-gray-300">|</span>
+                <span class="text-sm font-medium text-primary-600">Create New Job</span>
+            </div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Post New Job</h1>
+            <p class="text-gray-500 dark:text-gray-400">Create a new job opening for your organization.</p>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card p-6 rounded-2xl w-full">
+        <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Title -->
+                <div class="col-span-2 space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Job Title <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" formControlName="title" class="input"
+                        placeholder="e.g. Senior Software Engineer">
+                </div>
+
+                <!-- Department -->
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Department <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <app-dropdown [options]="departmentOptions" formControlName="department"
+                            placeholder="Select Department" [searchable]="true" [required]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Location <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <app-dropdown [options]="locationOptions" formControlName="location"
+                            placeholder="Select Location" [searchable]="true" [required]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Employment Type <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <app-dropdown [options]="jobTypeOptions" formControlName="type"
+                            placeholder="Select Employment Type" [required]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+
+                <!-- Salary -->
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Salary Range</label>
+                    <input type="text" formControlName="salary_range" placeholder="e.g. $50k - $80k" class="input">
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2 space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                    <div class="relative">
+                        <app-dropdown [options]="statusOptions" formControlName="status" placeholder="Select Status">
+                        </app-dropdown>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="col-span-2 space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Job Description <span
+                            class="text-red-500">*</span></label>
+                    <quill-editor formControlName="description" class="quill-editor-custom"
+                        [styles]="{height: '250px'}"></quill-editor>
+                </div>
+
+                <!-- Requirements -->
+                <div class="col-span-2 space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Requirements <span
+                            class="text-red-500">*</span></label>
+                    <quill-editor formControlName="requirements" class="quill-editor-custom"
+                        [styles]="{height: '250px'}"></quill-editor>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <a routerLink="/dashboard/recruitment/jobs" class="btn-secondary">Cancel</a>
+                <button type="submit" [disabled]="jobForm.invalid || isSubmitting()" class="btn-primary min-w-[120px]">
+                    <span *ngIf="isSubmitting()"><i class="fas fa-spinner fa-spin mr-2"></i> Creating...</span>
+                    <span *ngIf="!isSubmitting()"><i class="fas fa-check mr-2"></i> Create Job</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+:host ::ng-deep .company-org-chart .p-organizationchart-node-content {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+:host ::ng-deep .p-organizationchart-line-down {
+    background: #cbd5e1 !important;
+}
+
+:host ::ng-deep .p-organizationchart-line-left {
+    border-color: #cbd5e1 !important;
+}
+
+:host ::ng-deep .p-organizationchart-line-top {
+    border-color: #cbd5e1 !important;
+}

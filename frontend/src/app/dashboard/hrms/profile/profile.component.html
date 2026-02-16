@@ -1,0 +1,579 @@
+<div class="profile-container min-h-screen bg-slate-50 dark:bg-slate-900 pb-12 relative"
+    *ngIf="!isLoading(); else loading">
+
+    <!-- Professional Cover Banner -->
+    <div class="h-80 w-full relative overflow-hidden group">
+        <!-- Main Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800"></div>
+
+        <!-- Animated Mesh Gradient / Pattern Overlay -->
+        <div
+            class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150">
+        </div>
+        <div class="absolute inset-0 bg-grid-white/[0.05] bg-[length:32px_32px]"></div>
+
+        <!-- Decorative Blurs -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-2xl -ml-20 -mb-20"></div>
+
+        <!-- Content inside banner (optional breadcrumb or back) -->
+        <div class="absolute top-6 left-6 z-10">
+            <h1 class="text-white/90 font-heading font-medium text-lg tracking-wide">Employee Profile</h1>
+        </div>
+    </div>
+
+    <!-- Main Content Container with Overlap -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 -mt-32">
+
+        <!-- Profile Header Card (Glassmorphism) -->
+        <div
+            class="rounded-3xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-2xl overflow-hidden mb-8">
+            <div class="p-6 sm:p-10">
+                <div class="flex flex-col md:flex-row gap-8 items-start md:items-end">
+
+                    <!-- Avatar Area -->
+                    <div class="relative shrink-0 mx-auto md:mx-0 -mt-20 md:-mt-24">
+                        <div
+                            class="w-40 h-40 rounded-full p-1.5 bg-white dark:bg-slate-800 shadow-xl ring-1 ring-black/5 dark:ring-white/10">
+                            <div
+                                class="w-full h-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 relative group cursor-pointer">
+                                <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="Profile"
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                <div *ngIf="!avatarUrl()"
+                                    class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-800 text-blue-600 dark:text-blue-400 font-bold text-4xl font-heading">
+                                    {{ initials() }}
+                                </div>
+
+                                <!-- Hover Overlay for Upload -->
+                                <div (click)="triggerUpload()"
+                                    class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <i class="fas fa-camera text-white text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Status Indicator -->
+                        <div class="absolute bottom-4 right-2 w-6 h-6 rounded-full border-4 border-white dark:border-slate-800 shadow-sm"
+                            [ngClass]="{
+                                'bg-emerald-500': employee()?.employee_status === 'ACTIVE',
+                                'bg-amber-500': employee()?.employee_status === 'PROBATION',
+                                'bg-red-500': employee()?.employee_status === 'NOTICE'
+                             }" title="Status: {{employee()?.employee_status}}">
+                        </div>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="flex-1 text-center md:text-left space-y-2 pb-2">
+                        <div
+                            class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 justify-center md:justify-start">
+                            <h2
+                                class="text-3xl md:text-4xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                                {{ fullName() }}
+                            </h2>
+                            <span *ngIf="employee()?.employee_code"
+                                class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-bold tracking-wider uppercase border border-blue-100 dark:border-blue-800">
+                                {{ employee()?.employee_code }}
+                            </span>
+                        </div>
+
+                        <p class="text-lg text-slate-500 dark:text-slate-400 font-medium">
+                            {{ employee()?.designation || 'Designation Not Assigned' }}
+                        </p>
+
+                        <div
+                            class="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6 text-sm text-slate-500 dark:text-slate-400 mt-3">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-building text-slate-400"></i>
+                                {{ employee()?.department_name || 'No Department' }}
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-map-marker-alt text-slate-400"></i>
+                                {{ employee()?.city || 'Remote' }}
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-envelope text-slate-400"></i>
+                                {{ employee()?.personal_email }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 pb-2">
+                        <a *ngIf="employee()?.id" [routerLink]="['/dashboard/employees/edit', employee()?.id]"
+                            class="btn bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all rounded-xl px-5 py-2.5 font-medium flex items-center gap-2">
+                            <i class="fas fa-pen text-xs"></i> <span>Edit</span>
+                        </a>
+                        <button
+                            class="btn bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20 rounded-xl px-5 py-2.5 font-medium flex items-center gap-2 transition-all transform active:scale-95">
+                            <i class="fas fa-cog text-xs"></i> <span>Settings</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation (Segmented) -->
+            <div class="px-6 border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                <nav class="flex gap-8 overflow-x-auto no-scrollbar" aria-label="Tabs">
+                    <button *ngFor="let tab of tabs" (click)="setActiveTab(tab)"
+                        [class.hidden]="tab === 'activities' && !showActivities()"
+                        class="group relative py-4 px-1 text-sm font-medium transition-colors duration-200 ease-out whitespace-nowrap"
+                        [ngClass]="activeTab() === tab ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+                        <span class="capitalize font-heading tracking-wide">{{ tab }}</span>
+                        <!-- Active Indicator -->
+                        <span
+                            class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 rounded-t-full transition-all duration-300"
+                            [ngClass]="activeTab() === tab ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"></span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="animate-fade-in-up">
+
+            <!-- OVERVIEW TAB -->
+            <ng-container *ngIf="activeTab() === 'overview'">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="stats()">
+                    <!-- Leave Balance -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute right-0 top-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl -mr-6 -mt-6 transition-all group-hover:bg-blue-500/10">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
+                                    <i class="fas fa-umbrella-beach"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Leaves</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-1">{{ stats()!.leave_balance
+                                }} <span class="text-base font-normal text-slate-400">days</span></h3>
+                            <p class="text-sm text-slate-500">Available Balance</p>
+                        </div>
+                    </div>
+
+                    <!-- Attendance -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute right-0 top-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl -mr-6 -mt-6 transition-all group-hover:bg-emerald-500/10">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <span
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-wider">Attendance</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-1">{{ attendancePercentage()
+                                }}%</h3>
+                            <p class="text-sm text-slate-500">This Month</p>
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full"
+                                    [style.width.%]="attendancePercentage()"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assets -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute right-0 top-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl -mr-6 -mt-6 transition-all group-hover:bg-purple-500/10">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Assets</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-1">{{
+                                stats()!.assets_assigned }}</h3>
+                            <p class="text-sm text-slate-500">Assigned Devices</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Contact -->
+                    <div class="space-y-6">
+                        <div
+                            class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-white/5 shadow-sm">
+                            <h3
+                                class="text-lg font-bold text-slate-900 dark:text-white mb-6 font-heading flex items-center gap-2">
+                                <span class="w-1 h-6 bg-blue-500 rounded-full"></span> Contact Info
+                            </h3>
+                            <div class="space-y-5">
+                                <div class="flex gap-4 items-center group">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:text-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-all">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Email</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white truncate"
+                                            title="{{ employee()?.personal_email }}">{{ employee()?.personal_email }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 items-center group">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:text-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-all">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mobile</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white font-mono">{{
+                                            employee()?.mobile_number }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 items-center group">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:text-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-all">
+                                        <i class="fas fa-map-pin"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Address</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{
+                                            employee()?.current_address || 'Not Provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Employment -->
+                    <div class="lg:col-span-2">
+                        <div
+                            class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden">
+                            <!-- Background Decoration -->
+                            <div
+                                class="absolute top-0 right-0 p-12 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
+                                <i class="fas fa-briefcase text-9xl"></i>
+                            </div>
+
+                            <h3
+                                class="text-lg font-bold text-slate-900 dark:text-white mb-8 font-heading flex items-center gap-2 relative z-10">
+                                <span class="w-1 h-6 bg-purple-500 rounded-full"></span> Employment Details
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8 relative z-10">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Joining
+                                        Date</p>
+                                    <p
+                                        class="text-lg font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                                        <i class="fas fa-calendar-alt text-slate-300"></i>
+                                        {{ formatDate(employee()?.joining_date) }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Employment
+                                        Type</p>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                        <i class="fas fa-user-tag text-xs"></i> {{ employee()?.employment_type }}
+                                    </span>
+                                </div>
+
+                                <div class="sm:col-span-2 mt-2 pt-6 border-t border-slate-100 dark:border-white/5">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-bold text-sm">
+                                            RM
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                                Reporting Manager</p>
+                                            <p class="text-base font-medium text-slate-900 dark:text-white">{{
+                                                employee()?.reporting_manager || 'Not Assigned' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Professional Timeline Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+                    <!-- Experience Section -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-white/5 shadow-sm">
+                        <h3
+                            class="text-lg font-bold text-slate-900 dark:text-white mb-6 font-heading flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-briefcase"></i>
+                            </span>
+                            Work Experience
+                        </h3>
+
+                        <div class="relative space-y-8 pl-4 border-l-2 border-slate-100 dark:border-slate-700 ml-5">
+                            <ng-container *ngFor="let exp of employee()?.experience; let last = last">
+                                <div class="relative group">
+                                    <!-- Timeline Dot -->
+                                    <div class="absolute -left-[25px] w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 transition-colors"
+                                        [ngClass]="exp.is_current ? 'bg-amber-500 ring-4 ring-amber-100 dark:ring-amber-900/30' : 'bg-slate-300 dark:bg-slate-600'">
+                                    </div>
+
+                                    <h4
+                                        class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                                        {{ exp.company_name }}
+                                    </h4>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ exp.designation
+                                        }}</p>
+
+                                    <div
+                                        class="flex items-center gap-3 mt-1 text-xs text-slate-500 uppercase tracking-wider font-bold">
+                                        <span>{{ formatDate(exp.start_date) }}</span>
+                                        <i class="fas fa-arrow-right text-[10px] opacity-50"></i>
+                                        <span *ngIf="exp.is_current"
+                                            class="text-emerald-600 dark:text-emerald-400">Present</span>
+                                        <span *ngIf="!exp.is_current">{{ formatDate(exp.end_date) }}</span>
+                                    </div>
+
+                                    <p *ngIf="exp.description"
+                                        class="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-white/5 p-3 rounded-lg border border-slate-100 dark:border-white/5">
+                                        {{ exp.description }}
+                                    </p>
+                                </div>
+                            </ng-container>
+
+                            <div *ngIf="!employee()?.experience?.length" class="text-center py-8">
+                                <p class="text-slate-400 italic">No work experience added.</p>
+                                <a *ngIf="employee()?.id" [routerLink]="['/dashboard/employees/edit', employee()?.id]"
+                                    class="text-xs font-bold text-blue-600 hover:text-blue-700 mt-2 inline-block uppercase tracking-wider">
+                                    + Add Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Education Section -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-white/5 shadow-sm">
+                        <h3
+                            class="text-lg font-bold text-slate-900 dark:text-white mb-6 font-heading flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-graduation-cap"></i>
+                            </span>
+                            Education History
+                        </h3>
+
+                        <div class="relative space-y-8 pl-4 border-l-2 border-slate-100 dark:border-slate-700 ml-5">
+                            <ng-container *ngFor="let edu of employee()?.education">
+                                <div class="relative group">
+                                    <!-- Timeline Dot -->
+                                    <div
+                                        class="absolute -left-[25px] w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 bg-teal-400 ring-4 ring-teal-50 dark:ring-teal-900/20">
+                                    </div>
+
+                                    <h4
+                                        class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 transition-colors">
+                                        {{ edu.institution }}
+                                    </h4>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        {{ edu.degree }} <span *ngIf="edu.field_of_study" class="text-slate-400">• {{
+                                            edu.field_of_study }}</span>
+                                    </p>
+
+                                    <div
+                                        class="flex items-center gap-3 mt-1 text-xs text-slate-500 uppercase tracking-wider font-bold">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ formatDate(edu.start_date) }}</span>
+                                        <ng-container *ngIf="edu.end_date">
+                                            <i class="fas fa-minus text-[10px] opacity-50"></i>
+                                            <span>{{ formatDate(edu.end_date) }}</span>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <div *ngIf="!employee()?.education?.length" class="text-center py-8">
+                                <p class="text-slate-400 italic">No education details added.</p>
+                                <a *ngIf="employee()?.id" [routerLink]="['/dashboard/employees/edit', employee()?.id]"
+                                    class="text-xs font-bold text-blue-600 hover:text-blue-700 mt-2 inline-block uppercase tracking-wider">
+                                    + Add Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </ng-container>
+
+            <!-- SETTINGS TAB -->
+            <ng-container *ngIf="activeTab() === 'settings'">
+                <div class="max-w-3xl mx-auto space-y-6">
+
+                    <!-- App Preferences -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-white/5 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 dark:border-white/5">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white font-heading">Application
+                                Preferences</h3>
+                            <p class="text-sm text-slate-500">Manage your personal view and notification settings</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                                        <i class="fas fa-moon"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 dark:text-white">Dark Mode</p>
+                                        <p class="text-xs text-slate-500">Toggle application theme</p>
+                                    </div>
+                                </div>
+                                <button (click)="toggleTheme()" class="btn btn-sm btn-secondary">
+                                    Toggle Theme
+                                </button>
+                            </div>
+
+                            <hr class="border-slate-100 dark:border-white/5">
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 dark:text-white">Email Notifications</p>
+                                        <p class="text-xs text-slate-500">Receive updates regarding leaves and approvals
+                                        </p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security / Danger Zone -->
+                    <div
+                        class="bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 overflow-hidden">
+                        <div class="p-6 border-b border-red-200 dark:border-red-900/20">
+                            <h3 class="text-lg font-bold text-red-700 dark:text-red-400 font-heading">Security Zone</h3>
+                            <p class="text-sm text-red-600/70 dark:text-red-400/70">Sensitive actions regarding your
+                                account</p>
+                        </div>
+                        <div class="p-6 flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-white">Sign out everywhere</p>
+                                <p class="text-xs text-slate-500">Log out of all other active sessions</p>
+                            </div>
+                            <button (click)="signOutAll()"
+                                class="px-4 py-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 text-sm font-bold transition-colors">
+                                Sign Out All
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </ng-container>
+            <!-- For brevity in this plan, I'll ensure the existing tabs are preserved or updated using the same styling -->
+
+            <!-- DOCUMENTS TAB -->
+            <ng-container *ngIf="activeTab() === 'documents'">
+                <!-- Preserve existing documents logic but with updated styling for cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div (click)="triggerUpload()"
+                        class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 cursor-pointer flex flex-col items-center justify-center p-8 transition-colors group">
+                        <div
+                            class="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Upload New</h4>
+                        <p class="text-sm text-slate-500">Drag or click to upload</p>
+                    </div>
+
+                    <div *ngFor="let doc of documents()"
+                        class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex items-center gap-4 group hover:shadow-md transition-all">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center text-2xl">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="flex-1 overflow-hidden">
+                            <h4 class="font-bold text-slate-900 dark:text-white truncate">{{ doc.document_name }}</h4>
+                            <p class="text-xs text-slate-500 uppercase">{{ doc.document_type }}</p>
+                        </div>
+                        <button (click)="downloadDocument(doc)"
+                            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- ACTIVITIES TAB -->
+            <ng-container *ngIf="activeTab() === 'activities' && showActivities()">
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-white/5 overflow-hidden">
+                    <!-- Table implementation preserved but with updated classes -->
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase text-xs font-semibold">
+                            <tr>
+                                <th class="px-6 py-4">Time</th>
+                                <th class="px-6 py-4">Action</th>
+                                <th class="px-6 py-4">Module</th>
+                                <th class="px-6 py-4">Description</th>
+                                <th class="px-6 py-4">IP</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr *ngFor="let act of activities()"
+                                class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-slate-500">{{act.created_at | date:'medium'}}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold" [ngClass]="{
+                                        'bg-blue-100 text-blue-700': act.action === 'LOGIN',
+                                        'bg-emerald-100 text-emerald-700': act.action === 'CREATE',
+                                        'bg-amber-100 text-amber-700': act.action === 'UPDATE',
+                                        'bg-red-100 text-red-700': act.action === 'DELETE'
+                                     }">{{act.action}}</span>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-slate-900 dark:text-white">{{act.module}}</td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400 truncate max-w-xs">
+                                    {{act.description}}</td>
+                                <td class="px-6 py-4 text-slate-400 font-mono text-xs">{{act.ip_address}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </ng-container>
+
+        </div>
+
+    </div>
+</div>
+
+<ng-template #loading>
+    <!-- Skeleton Loading -->
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 animate-pulse">
+        <div class="h-80 bg-slate-200 dark:bg-slate-800"></div>
+        <div class="max-w-7xl mx-auto px-4 -mt-32 relative">
+            <div class="h-64 bg-slate-300 dark:bg-slate-700 rounded-3xl mb-8"></div>
+            <div class="grid grid-cols-3 gap-6">
+                <div class="h-32 bg-slate-300 dark:bg-slate-700 rounded-2xl"></div>
+                <div class="h-32 bg-slate-300 dark:bg-slate-700 rounded-2xl"></div>
+                <div class="h-32 bg-slate-300 dark:bg-slate-700 rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+</ng-template>

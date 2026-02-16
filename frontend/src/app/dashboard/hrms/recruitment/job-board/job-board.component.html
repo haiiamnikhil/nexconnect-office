@@ -1,0 +1,59 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Job Board</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage recruitment requisitions and openings.</p>
+        </div>
+        <a *ngIf="authService.hasPermission('recruitment:CREATE')" routerLink="/dashboard/recruitment/jobs/create"
+            class="btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-briefcase w-5 h-5" aria-hidden="true"></i>
+            <span>Post New Job</span>
+        </a>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let job of jobs()" class="card group cursor-pointer" (click)="viewJob(job.id)">
+            <div class="flex justify-between items-start mb-4">
+                <span class="px-2 py-1 text-xs font-bold rounded-lg border backdrop-blur-sm" [ngClass]="{
+                        'bg-blue-50/50 text-blue-700 border-blue-200/50 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/30': job.status === 'OPEN',
+                        'bg-gray-50/50 text-gray-700 border-gray-200/50 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800/30': job.status === 'DRAFT',
+                        'bg-red-50/50 text-red-700 border-red-200/50 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/30': job.status === 'CLOSED',
+                        'bg-yellow-50/50 text-yellow-700 border-yellow-200/50 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/30': job.status === 'HOLD'
+                    }">
+                    {{ job.status }}
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ job.created_at | date }}</span>
+            </div>
+
+            <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-1">{{ job.title }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-building text-xs w-3 h-3" aria-hidden="true"></i> {{ job.department_name }}
+                <span class="mx-1">•</span>
+                <i class="fas fa-map-marker-alt text-xs w-3 h-3" aria-hidden="true"></i> {{ job.location_name }}
+            </p>
+
+            <div class="flex items-center gap-2 mb-4 text-sm text-gray-600 dark:text-gray-300">
+                <i class="fas fa-users text-primary-500 w-4 h-4" aria-hidden="true"></i>
+                <span>{{ job.applications_count }} Applications</span>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-between items-center">
+                <span
+                    class="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-50/50 dark:bg-gray-800/50 rounded border border-gray-200/50 dark:border-gray-700/50">{{
+                    job.type }}</span>
+                <button (click)="$event.stopPropagation(); viewJob(job.id)"
+                    class="text-primary-600 dark:text-primary-400 text-sm font-bold hover:underline transition-colors flex items-center">
+                    View Details <i class="fas fa-arrow-right text-xs ml-1 w-3 h-3" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="jobs().length === 0"
+            class="col-span-full text-center py-12 bg-gray-50/30 dark:bg-white/5 rounded-2xl border border-dashed border-gray-300/50 dark:border-gray-700/50 backdrop-blur-sm">
+            <i class="fas fa-briefcase text-5xl text-gray-300 dark:text-gray-600 mb-3" aria-hidden="true"></i>
+            <p class="text-gray-500">No job postings found.</p>
+        </div>
+    </div>
+</div>

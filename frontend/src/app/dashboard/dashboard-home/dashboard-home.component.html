@@ -1,0 +1,209 @@
+<!-- Employee Dashboard -->
+<app-employee-dashboard *ngIf="!authService.hasRole('Admin')"></app-employee-dashboard>
+
+<!-- Admin Dashboard -->
+<div *ngIf="authService.hasRole('Admin')" class="space-y-6 animate-fade-in">
+    <!-- Welcome Section -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-heading font-bold text-gray-800 dark:text-white">Welcome back, Admin</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Here's what's happening in your organization today.</p>
+        </div>
+        <div class="flex gap-3">
+            <button class="btn-secondary btn-sm inline-flex items-center gap-2">
+                <i class="fas fa-download w-4 h-4" aria-hidden="true"></i>
+                <span>Report</span>
+            </button>
+            <button class="btn-primary btn-sm inline-flex items-center gap-2">
+                <i class="fas fa-plus w-4 h-4" aria-hidden="true"></i>
+                <span>New Request</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1: Total Employees -->
+        <div class="card border-l-4 border-l-primary-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Total
+                    Employees</h3>
+                <div
+                    class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                    <i class="fas fa-users text-lg w-5 h-5" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stats()?.total_employees || '--'
+                    }}</span>
+                <span class="text-green-500 text-sm font-medium mb-1"><i class="fas fa-check-circle w-3 h-3"
+                        aria-hidden="true"></i> Active</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Full-time staff</p>
+        </div>
+
+        <!-- Card 2: On Leave -->
+        <div class="card border-l-4 border-l-cta group">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">On Leave Today
+                </h3>
+                <div
+                    class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-cta group-hover:bg-cta group-hover:text-white transition-colors">
+                    <i class="fas fa-user-clock text-lg w-5 h-5" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stats()?.on_leave_today || 0 }}</span>
+                <span class="text-gray-400 text-sm font-medium mb-1">/ {{ stats()?.total_employees || '--' }}</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Approved Leaves</p>
+        </div>
+
+        <!-- Card 3: Open Jobs -->
+        <div class="card border-l-4 border-l-purple-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Open Positions
+                </h3>
+                <div
+                    class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                    <i class="fas fa-briefcase text-lg w-5 h-5" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stats()?.open_positions || 0 }}</span>
+                <span class="text-green-500 text-sm font-medium mb-1"><i class="fas fa-plus w-3 h-3"
+                        aria-hidden="true"></i> Hiring</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Active Job Postings</p>
+        </div>
+
+        <!-- Card 4: Estimated Payroll (Replaces Pending Tasks or added as new KPI) -->
+        <!-- Keeping Pending Tasks for now as per user request to 'Show realtime data', assuming they want all cards real -->
+        <div class="card border-l-4 border-l-red-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Pending Tasks
+                </h3>
+                <div
+                    class="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                    <i class="fas fa-clipboard-list text-lg w-5 h-5" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stats()?.pending_tasks || 0 }}</span>
+                <span class="text-red-500 text-sm font-medium mb-1">Action Req.</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Leaves & Approvals</p>
+        </div>
+    </div>
+
+    <!-- Optional: Add Payroll Estimate Card Row if needed or replace one above -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="stats()?.payroll_estimate">
+        <div class="card border-l-4 border-l-green-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Est. Payroll
+                    (This Month)
+                </h3>
+                <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400">
+                    <i class="fas fa-coins text-lg w-5 h-5"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stats()?.payroll_estimate |
+                    currency:'INR' }}</span>
+                <span class="text-xs text-gray-400 mb-1">Pro-rated to date</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Activity / Quick Actions -->
+        <div class="card lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+                <h3 class="font-heading font-semibold text-gray-800 dark:text-white text-lg">Recent Activity</h3>
+                <a href="javascript:void(0)" class="text-primary-600 text-sm hover:underline">View All</a>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-800 dark:text-gray-200 font-medium">New Employee Onboarded</p>
+                        <p class="text-xs text-gray-500">Sarah Jenkins joined Engineering Department</p>
+                        <span class="text-xs text-gray-400">2 hours ago</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-800 dark:text-gray-200 font-medium">Leave Request Approved</p>
+                        <p class="text-xs text-gray-500">Michael Scott approved leave for Jim Halpert</p>
+                        <span class="text-xs text-gray-400">5 hours ago</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-800 dark:text-gray-200 font-medium">Payroll Run Completed</p>
+                        <p class="text-xs text-gray-500">January 2026 Payroll processed successfully</p>
+                        <span class="text-xs text-gray-400">Yesterday</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shortcuts & Punch Widget -->
+        <div class="card space-y-6">
+            <!-- Attendance Widget -->
+            <div>
+                <h3 class="font-heading font-semibold text-gray-800 dark:text-white text-lg mb-4">Attendance</h3>
+                <app-punch-widget></app-punch-widget>
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-800 pt-6">
+                <h3 class="font-heading font-semibold text-gray-800 dark:text-white text-lg mb-4">Quick Shortcuts</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <a routerLink="/dashboard/employees/create"
+                        class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:border-primary-200 transition-all cursor-pointer group">
+                        <i
+                            class="fas fa-user-plus text-2xl text-gray-400 group-hover:text-primary-500 mb-2 transition-colors"></i>
+                        <span
+                            class="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">Add
+                            Employee</span>
+                    </a>
+                    <a routerLink="/dashboard/leaves"
+                        class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-cta/10 hover:border-cta/20 transition-all cursor-pointer group">
+                        <i
+                            class="fas fa-plane-departure text-2xl text-gray-400 group-hover:text-cta mb-2 transition-colors"></i>
+                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-cta">Apply
+                            Leave</span>
+                    </a>
+                    <a routerLink="/dashboard/recruitment/jobs/create"
+                        class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-200 transition-all cursor-pointer group">
+                        <i
+                            class="fas fa-bullhorn text-2xl text-gray-400 group-hover:text-purple-500 mb-2 transition-colors"></i>
+                        <span
+                            class="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-purple-600">Post
+                            Job</span>
+                    </a>
+                    <a routerLink="/dashboard/payroll/run"
+                        class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200 transition-all cursor-pointer group">
+                        <i
+                            class="fas fa-money-check-alt text-2xl text-gray-400 group-hover:text-green-500 mb-2 transition-colors"></i>
+                        <span
+                            class="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-green-600">Run
+                            Payroll</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

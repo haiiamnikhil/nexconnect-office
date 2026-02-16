@@ -1,0 +1,77 @@
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Chat Window -->
+    <div *ngIf="isOpen()"
+        class="mb-4 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right"
+        style="height: 500px; max-height: 80vh;">
+
+        <!-- Header -->
+        <div
+            class="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 text-white flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <i class="fas fa-robot text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm">HR Assistant</h3>
+                    <p class="text-xs text-blue-100">Online</p>
+                </div>
+            </div>
+            <button (click)="toggleChat()" class="text-white/80 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50 scrollbar-thin">
+            <div *ngFor="let msg of messages()" class="flex"
+                [ngClass]="{'justify-end': msg.sender === 'user', 'justify-start': msg.sender === 'bot'}">
+                <div class="max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm" [ngClass]="{
+                        'bg-blue-600 text-white rounded-br-none': msg.sender === 'user',
+                        'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none border border-gray-100 dark:border-gray-600': msg.sender === 'bot'
+                     }">
+                    <p>{{ msg.text }}</p>
+                    <p class="text-[10px] mt-1 opacity-70"
+                        [ngClass]="{'text-blue-100': msg.sender === 'user', 'text-gray-400': msg.sender === 'bot'}">
+                        {{ msg.time | date:'shortTime' }}
+                    </p>
+                </div>
+            </div>
+
+            <div *ngIf="isLoading()" class="flex justify-start">
+                <div
+                    class="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s">
+                        </div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+            <form (submit)="sendMessage()" class="flex gap-2">
+                <input [(ngModel)]="userMessage" name="message" type="text" placeholder="Type a message..."
+                    class="flex-1 px-4 py-2 rounded-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm focus:outline-none focus:border-blue-500 dark:text-white"
+                    [disabled]="isLoading()" autocomplete="off">
+                <button type="submit" [disabled]="!userMessage.trim() || isLoading()"
+                    class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md">
+                    <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toggle Button -->
+    <button (click)="toggleChat()"
+        class="w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group">
+        <i class="fas fa-comment-dots text-2xl group-hover:animate-pulse" *ngIf="!isOpen()"></i>
+        <i class="fas fa-chevron-down text-xl" *ngIf="isOpen()"></i>
+
+        <!-- Pulse effect ring -->
+        <span *ngIf="!isOpen()" class="absolute -inset-1 rounded-full bg-blue-500 opacity-30 animate-ping"></span>
+    </button>
+</div>

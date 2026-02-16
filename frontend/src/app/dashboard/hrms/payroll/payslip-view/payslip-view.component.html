@@ -1,0 +1,19 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Payslips</h1>
+            <p class="text-sm text-gray-500 mt-1">View and download employee payslips</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+        <div *ngIf="isLoading()" class="p-4 text-center">
+            <span class="text-gray-500">Loading...</span>
+        </div>
+
+        <!-- Data Table -->
+        <app-data-table *ngIf="!isLoading()" [data]="payslips()" [columns]="columns" [actions]="actions"
+            [showRefresh]="true" (refresh)="loadPayslips()" (actionClicked)="handleAction($event)">
+        </app-data-table>
+    </div>
+</div>

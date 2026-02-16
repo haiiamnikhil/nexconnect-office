@@ -1,0 +1,110 @@
+<div class="space-y-6 animate-fade-in p-4">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Global Policies</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Manage application-wide rules and settings</p>
+        </div>
+        <button (click)="openModal()" class="btn-primary">
+            <i class="fas fa-plus mr-2"></i> Add Policy
+        </button>
+    </div>
+
+    <div class="card overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs uppercase font-semibold">
+                <tr>
+                    <th class="p-4">Policy Name</th>
+                    <th class="p-4">Work Hours</th>
+                    <th class="p-4">Re-entry Allowed</th>
+                    <th class="p-4">Default</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                <tr *ngFor="let policy of policies" class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="p-4 font-medium text-gray-800 dark:text-white">{{ policy.name }}</td>
+                    <td class="p-4 text-gray-600 dark:text-gray-300">{{ policy.work_hours_per_day }} hrs</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-bold"
+                            [ngClass]="policy.allow_reentry ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                            {{ policy.allow_reentry ? 'Yes' : 'No' }}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <span *ngIf="policy.is_default"
+                            class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Default</span>
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <button (click)="editPolicy(policy)" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button (click)="deletePolicy(policy)" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-dark-card rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-in">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+                {{ isEditing ? 'Edit Policy' : 'New Policy' }}
+            </h3>
+            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Policy Name</label>
+                <input type="text" [(ngModel)]="currentPolicy.name" class="input w-full"
+                    placeholder="e.g. Standard Shift">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Work
+                        Hours/Day</label>
+                    <input type="number" [(ngModel)]="currentPolicy.work_hours_per_day" class="input w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Grace Period
+                        (mins)</label>
+                    <input type="number" [(ngModel)]="currentPolicy.grace_period_minutes" class="input w-full">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4 pt-2">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="currentPolicy.allow_reentry"
+                        class="rounded text-primary-600 focus:ring-primary-500">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Allow Check-In Re-entry</span>
+                </label>
+            </div>
+            <p class="text-xs text-gray-500 ml-6">If enabled, employees can punch in again after punching out on the
+                same day.</p>
+
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="currentPolicy.is_default"
+                        class="rounded text-primary-600 focus:ring-primary-500">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Default Policy</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button (click)="closeModal()"
+                class="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Cancel</button>
+            <button (click)="savePolicy()" class="btn-primary">
+                {{ isEditing ? 'Update' : 'Create' }}
+            </button>
+        </div>
+    </div>
+</div>

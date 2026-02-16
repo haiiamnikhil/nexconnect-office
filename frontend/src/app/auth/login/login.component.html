@@ -1,0 +1,107 @@
+<div class="min-h-screen flex bg-gray-50">
+    <!-- Left Side: Branding / Value Prop -->
+    <div
+        class="hidden lg:flex w-1/2 bg-indigo-900 text-white flex-col justify-center items-center p-12 relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-20"
+            style="background-image: url('assets/images/auth-bg.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 opacity-90"></div>
+
+        <div class="relative z-10 max-w-lg text-center">
+            <div class="mb-8 flex flex-col items-center gap-4">
+                <img src="assets/nexconnect-logo.png" alt="NexConnect Logo"
+                    class="w-24 h-24 rounded-2xl shadow-xl border border-white/20">
+            </div>
+            <h1 class="text-4xl font-bold mb-6">Welcome Back</h1>
+            <p class="text-lg text-indigo-200 leading-relaxed mb-8">
+                Sign in to your dashboard to manage your workforce, payroll, and assets efficiently.
+            </p>
+
+            <div class="space-y-4 text-left text-sm text-indigo-200 inline-block">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-shield-alt text-green-400"></i>
+                    <span>Secure Enterprise Login</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-clock text-green-400"></i>
+                    <span>Real-time Updates</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-headset text-green-400"></i>
+                    <span>24/7 Support Access</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
+        <div class="w-full max-w-md space-y-8">
+            <div class="text-center lg:text-left">
+                <h2 class="text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Or
+                    <a routerLink="/register"
+                        class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">register a new
+                        tenant</a>
+                </p>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-6">
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400 text-sm"></i>
+                            </div>
+                            <input type="text" formControlName="username" id="username"
+                                class="block w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Enter your username">
+                        </div>
+                        <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid"
+                            class="text-red-500 text-xs mt-1">
+                            Username is required
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400 text-sm"></i>
+                            </div>
+                            <input type="password" formControlName="password" id="password"
+                                class="block w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="••••••••">
+                        </div>
+                        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+                            class="text-red-500 text-xs mt-1">
+                            Password is required
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div>
+                    <button type="submit" [disabled]="loginForm.invalid"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i
+                                class="fas fa-sign-in-alt text-indigo-500 group-hover:text-indigo-400 transition-colors"></i>
+                        </span>
+                        Sign In
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot your password?</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

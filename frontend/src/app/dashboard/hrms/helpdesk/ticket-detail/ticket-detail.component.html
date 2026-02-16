@@ -1,0 +1,91 @@
+<div *ngIf="ticket() as t" class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-start justify-between">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <a routerLink="/dashboard/helpdesk"
+                    class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    &larr; Back to Tickets
+                </a>
+                <span class="text-xs font-mono text-gray-400">#{{ t.id }}</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t.title }}</h1>
+        </div>
+        <span class="px-3 py-1 text-sm font-medium rounded-full" [ngClass]="{
+                'bg-blue-100 text-blue-800': t.status === 'OPEN',
+                'bg-purple-100 text-purple-800': t.status === 'IN_PROGRESS',
+                'bg-green-100 text-green-800': t.status === 'RESOLVED',
+                'bg-gray-100 text-gray-800': t.status === 'CLOSED'
+            }">
+            {{ t.status.replace('_', ' ') }}
+        </span>
+    </div>
+
+    <!-- Details Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+            <div>
+                <span class="block text-xs font-medium text-gray-500 uppercase">Requester</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t.requester_name }}</span>
+            </div>
+            <div>
+                <span class="block text-xs font-medium text-gray-500 uppercase">Category</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t.category }}</span>
+            </div>
+            <div>
+                <span class="block text-xs font-medium text-gray-500 uppercase">Priority</span>
+                <span class="inline-flex items-center gap-1.5 text-sm font-medium" [ngClass]="{
+                        'text-gray-700': t.priority === 'LOW',
+                        'text-blue-700': t.priority === 'MEDIUM',
+                        'text-orange-700': t.priority === 'HIGH',
+                        'text-red-700': t.priority === 'CRITICAL'
+                    }">
+                    <span class="w-2 h-2 rounded-full bg-current"></span>
+                    {{ t.priority }}
+                </span>
+            </div>
+            <div>
+                <span class="block text-xs font-medium text-gray-500 uppercase">Created</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t.created_at | date:'mediumDate'
+                    }}</span>
+            </div>
+        </div>
+
+        <div class="prose dark:prose-invert max-w-none text-sm text-gray-600 dark:text-gray-300">
+            <p>{{ t.description }}</p>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Discussion</h3>
+
+        <div class="space-y-4 max-h-[500px] overflow-y-auto">
+            <div *ngFor="let comment of t.comments"
+                class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-medium text-sm text-gray-900 dark:text-white">{{ comment.user_name }}</span>
+                    <span class="text-xs text-gray-500">{{ comment.created_at | date:'short' }}</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{{ comment.text }}</p>
+            </div>
+            <div *ngIf="t.comments.length === 0" class="text-center py-6 text-gray-500 text-sm italic">
+                No comments yet.
+            </div>
+        </div>
+
+        <!-- Add Comment -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reply</label>
+            <textarea [(ngModel)]="newComment" rows="3"
+                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Type your reply here..."></textarea>
+            <div class="mt-3 flex justify-end">
+                <button (click)="submitComment()" [disabled]="!newComment().trim()"
+                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Post Reply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

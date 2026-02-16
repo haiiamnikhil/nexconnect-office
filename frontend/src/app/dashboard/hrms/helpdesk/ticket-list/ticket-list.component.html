@@ -1,0 +1,124 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Helpdesk Tickets</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage support requests and issues.</p>
+        </div>
+        <button (click)="openModal()" class="btn-primary">
+            <i class="fas fa-ticket-alt"></i> Create New Ticket
+        </button>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="card p-0 overflow-hidden">
+        <table class="w-full text-left text-sm border-collapse">
+            <thead
+                class="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold tracking-wider">
+                <tr>
+                    <th class="p-4">ID</th>
+                    <th class="p-4">Subject</th>
+                    <th class="p-4">Requester</th>
+                    <th class="p-4">Priority</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4 text-right">Created</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                <tr *ngFor="let ticket of tickets()" [routerLink]="['/dashboard/helpdesk/tickets', ticket.id]"
+                    class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                    <td class="p-4 font-mono text-xs text-gray-600 dark:text-gray-400">#{{ ticket.id }}</td>
+                    <td class="p-4">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ ticket.title }}</div>
+                        <div class="text-xs text-gray-400 mt-1">{{ ticket.category }}</div>
+                    </td>
+                    <td class="p-4 text-gray-600 dark:text-gray-300">{{ ticket.requester_name }}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full border" [ngClass]="{
+                                'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400': ticket.priority === 'LOW',
+                                'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400': ticket.priority === 'MEDIUM',
+                                'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400': ticket.priority === 'HIGH',
+                                'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400': ticket.priority === 'CRITICAL'
+                            }">
+                            {{ ticket.priority }}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full border" [ngClass]="{
+                                'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400': ticket.status === 'OPEN',
+                                'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400': ticket.status === 'IN_PROGRESS',
+                                'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400': ticket.status === 'RESOLVED',
+                                'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400': ticket.status === 'CLOSED'
+                            }">
+                            {{ ticket.status.replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right text-gray-500 dark:text-gray-400">{{ ticket.created_at | date:'short' }}
+                    </td>
+                </tr>
+                <tr *ngIf="tickets().length === 0">
+                    <td colspan="6" class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-inbox text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
+                        No tickets found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Ticket Modal -->
+<div *ngIf="showModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+        class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg border border-gray-100 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-xl font-bold font-heading text-gray-800 dark:text-white">Create Support Ticket</h3>
+            <button (click)="closeModal()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()" class="p-6">
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
+                    <input type="text" formControlName="title" class="input" placeholder="Brief summary of issue">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                        <div class="relative">
+                            <app-dropdown [options]="categoryOptions" formControlName="category"
+                                placeholder="Select Category">
+                            </app-dropdown>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
+                        <div class="relative">
+                            <app-dropdown [options]="priorityOptions" formControlName="priority"
+                                placeholder="Select Priority">
+                            </app-dropdown>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                    <textarea formControlName="description" rows="4" class="input resize-none"
+                        placeholder="Detailed explanation..."></textarea>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" (click)="closeModal()" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="ticketForm.invalid" class="btn-primary">
+                    <i class="fas fa-check"></i> Create Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

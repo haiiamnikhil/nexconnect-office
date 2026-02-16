@@ -1,0 +1,48 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Join Our Team
+            </h1>
+            <p class="mt-4 text-xl text-gray-500">
+                Check out our open positions and find your next career move.
+            </p>
+        </div>
+
+        <div *ngIf="isLoading" class="text-center py-12">
+            <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
+            <span class="ml-2">Loading jobs...</span>
+        </div>
+
+        <div *ngIf="!isLoading && jobs.length === 0" class="text-center py-12 bg-white rounded-lg shadow">
+            <p class="text-gray-500">No open positions at the moment.</p>
+        </div>
+
+        <div class="grid gap-6">
+            <div *ngFor="let job of jobs"
+                class="bg-white shadow overflow-hidden sm:rounded-lg hover:shadow-md transition-shadow">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 cursor-pointer"
+                            (click)="viewDetails(job.id)">
+                            <span class="hover:text-primary-600 transition-colors">
+                                {{ job.title }}
+                            </span>
+                        </h3>
+                        <div class="mt-1 max-w-2xl text-sm text-gray-500">
+                            {{ job.department?.name || 'General' }} • {{ job.type }} • {{ job.location?.city || 'Remote'
+                            }}
+                        </div>
+                    </div>
+                    <button (click)="viewDetails(job.id)"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        View Details
+                    </button>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                    <p class="text-sm text-gray-700 line-clamp-3">{{ job.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

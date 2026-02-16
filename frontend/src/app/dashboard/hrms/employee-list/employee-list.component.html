@@ -1,0 +1,86 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Employees</h1>
+            <div class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400" *ngIf="stats">
+                <span class="flex items-center gap-1.5"><i class="fas fa-users w-4 h-4" aria-hidden="true"></i> Total:
+                    {{stats().total_employees ||
+                    0}}</span>
+                <span class="flex items-center gap-1.5"><i class="fas fa-check-circle w-4 h-4 text-green-500"
+                        aria-hidden="true"></i> Active:
+                    {{stats().active_employees || 0}}</span>
+            </div>
+        </div>
+        <button *ngIf="authService.hasPermission('employee:CREATE')" class="btn-primary inline-flex items-center gap-2"
+            (click)="openCreate()">
+            <i class="fas fa-plus w-5 h-5" aria-hidden="true"></i>
+            <span>Add Employee</span>
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
+                aria-hidden="true"></i>
+            <input type="text" placeholder="Search employees..." [(ngModel)]="searchQuery" (input)="onSearch()"
+                class="input pl-10">
+        </div>
+        <div class="relative">
+            <i class="fas fa-building absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
+                aria-hidden="true"></i>
+            <app-dropdown [options]="departmentOptions()" [(ngModel)]="selectedDepartment"
+                (ngModelChange)="onDepartmentChange()" placeholder="Filter by Department" [searchable]="true"
+                class="w-64">
+            </app-dropdown>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="space-y-4">
+        <app-data-table [data]="employees()" [columns]="columns" [actions]="actions()"
+            (actionClicked)="handleAction($event)" (rowClick)="viewProfile($event)" [pageSize]="pageSize()"
+            [loading]="isLoading()" [showRefresh]="true" (refresh)="loadEmployees()">
+        </app-data-table>
+
+        <!-- Server-side Pagination Controls (Optional overlay or replacement) -->
+        <!-- Note: The DataTable currently handles client-side pagination of the *current page* of data fetched from server. 
+             If we want true server-side pagination, we would need to enhance DataTable to accept totalCount and emit pageChange events.
+             For now, since we fetch paged data, the DataTable will see 10 records and think there is only 1 page.
+             Let's keep the server-side pagination controls below the table for now.
+        -->
+    </div>
+
+    <!-- Server-Side Pagination -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-4 px-2" *ngIf="totalPages() > 1">
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            Showing <span class="font-medium text-gray-900 dark:text-white">{{(currentPage() - 1) * pageSize() +
+                1}}</span>
+            to <span class="font-medium text-gray-900 dark:text-white">{{Math.min(currentPage() * pageSize(),
+                totalCount())}}</span>
+            of <span class="font-medium text-gray-900 dark:text-white">{{totalCount()}}</span> results
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button (click)="onPageChange(currentPage() - 1)" [disabled]="currentPage() === 1"
+                class="btn-icon w-9 h-9 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <i class="fas fa-chevron-left w-4 h-4"></i>
+            </button>
+
+            <div class="flex items-center gap-1">
+                <button *ngFor="let page of getPages()" (click)="onPageChange(page)"
+                    class="w-9 h-9 rounded-lg text-sm font-medium transition-colors border" [ngClass]="page === currentPage() ? 
+                        'bg-primary-600 text-white border-primary-600 shadow-sm' : 
+                        'text-gray-600 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-gray-800'">
+                    {{page}}
+                </button>
+            </div>
+
+            <button (click)="onPageChange(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+                class="btn-icon w-9 h-9 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <i class="fas fa-chevron-right w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+</div>

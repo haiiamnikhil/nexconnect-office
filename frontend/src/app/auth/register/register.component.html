@@ -1,0 +1,138 @@
+<div class="min-h-screen flex bg-gray-50">
+    <!-- Left Side: Branding / Value Prop -->
+    <div
+        class="hidden lg:flex w-1/2 bg-indigo-900 text-white flex-col justify-center items-center p-12 relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-20"
+            style="background-image: url('assets/images/auth-bg.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 opacity-90"></div>
+
+        <div class="relative z-10 max-w-lg text-center">
+            <div class="mb-8 flex flex-col items-center gap-4">
+                <img src="assets/nexconnect-logo.png" alt="NexConnect Logo"
+                    class="w-24 h-24 rounded-2xl shadow-xl border border-white/20">
+            </div>
+            <h1 class="text-4xl font-bold mb-6">Manage Your Workforce Like a Pro</h1>
+            <p class="text-lg text-indigo-200 leading-relaxed mb-8">
+                Join thousands of companies using our platform to streamline HR, Payroll, and Operations.
+                Get started with a 14-day free trial.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4 text-left text-sm text-indigo-200">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                    <span>Automated Payroll</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                    <span>Smart Attendance</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                    <span>Asset Management</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                    <span>Employee Self-Service</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
+        <div class="w-full max-w-md space-y-8">
+            <div class="text-center lg:text-left">
+                <h2 class="text-3xl font-extrabold text-gray-900">Create your account</h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Already have an account?
+                    <a routerLink="/login"
+                        class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">Sign in here</a>
+                </p>
+            </div>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+
+                <!-- Organization Details -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Organization Details</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="company_name" class="block text-sm font-medium text-gray-700">Company
+                                Name</label>
+                            <input id="company_name" type="text" formControlName="company_name"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="e.g. Acme Innovations">
+                            <div *ngIf="registerForm.get('company_name')?.touched && registerForm.get('company_name')?.invalid"
+                                class="text-red-500 text-xs mt-1">
+                                Company name is required
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="domain" class="block text-sm font-medium text-gray-700">Workspace URL</label>
+                            <div class="mt-1 flex rounded-lg shadow-sm">
+                                <input type="text" formControlName="domain" id="domain"
+                                    class="flex-1 min-w-0 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-l-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                    placeholder="acme">
+                                <span
+                                    class="inline-flex items-center px-4 rounded-r-lg border border-l-0 border-gray-200 bg-gray-100 text-gray-500 sm:text-sm">
+                                    .saas.com
+                                </span>
+                            </div>
+                            <div *ngIf="registerForm.get('domain')?.touched && registerForm.get('domain')?.invalid"
+                                class="text-red-500 text-xs mt-1">
+                                Slug must be lowercase letters/numbers only
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Details -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin Account</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <input id="username" type="text" formControlName="username"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="admin">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Work Email</label>
+                            <input id="email" type="email" formControlName="email"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="you@company.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="password" type="password" formControlName="password"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            placeholder="••••••••">
+                        <p class="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+                    </div>
+                </div>
+
+
+
+                <div>
+                    <button type="submit" [disabled]="registerForm.invalid"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-rocket text-indigo-500 group-hover:text-indigo-400 transition-colors"></i>
+                        </span>
+                        Get Started Now
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center text-xs text-gray-400">
+                By clicking "Get Started Now", you agree to our <a href="#" class="underline hover:text-gray-500">Terms
+                    of Service</a> and <a href="#" class="underline hover:text-gray-500">Privacy Policy</a>.
+            </p>
+        </div>
+    </div>
+</div>

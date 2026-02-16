@@ -1,0 +1,205 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Leave Management</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Track and manage your leave requests</p>
+        </div>
+        <div class="flex gap-2">
+            <button *ngIf="isAdmin && authService.hasPermission('leave:EDIT')"
+                class="btn btn-secondary inline-flex items-center gap-2" (click)="openAllocationModal()">
+                <i class="fas fa-users-cog w-5 h-5" aria-hidden="true"></i>
+                <span>Allocate Leaves</span>
+            </button> <button *ngIf="authService.hasPermission('leave:CREATE')"
+                class="btn-primary inline-flex items-center gap-2" (click)="openApplyModal()">
+                <i class="fas fa-plus-circle w-5 h-5" aria-hidden="true"></i>
+                <span>Apply Leave</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Leave Balances -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="card border-t-4 border-t-primary-500 group" *ngFor="let balance of balances">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-sm">
+                    {{balance.leave_type_name}}</h3>
+                <div
+                    class="p-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                    <i class="fas fa-calendar-check text-lg w-5 h-5" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="flex items-end gap-2 mb-3">
+                <span class="text-3xl font-bold text-gray-800 dark:text-white">{{balance.available}}</span>
+                <span class="text-sm text-gray-400 mb-1">available</span>
+            </div>
+            <div
+                class="flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <span>Total: {{balance.total_allocated}}</span>
+                <span>Used: {{balance.used}}</span>
+                <span class="text-orange-500">Pending: {{balance.pending}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Leaves -->
+    <div class="space-y-6">
+        <div class="space-y-3">
+            <h2 class="text-lg font-bold font-heading text-gray-800 dark:text-white">My Leave Applications</h2>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button *ngFor="let tab of tabs" (click)="setTab(tab)"
+                        [class.border-primary-500]="activeTab === tab" [class.text-primary-600]="activeTab === tab"
+                        [class.border-transparent]="activeTab !== tab" [class.text-gray-500]="activeTab !== tab"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:text-gray-700 hover:border-gray-300">
+                        {{ tab | titlecase }}
+                    </button>
+                </nav>
+            </div>
+
+            <app-data-table [data]="myLeaves" [columns]="myLeavesColumns" [pageSize]="5" [showRefresh]="true"
+                (refresh)="loadMyLeaves()">
+            </app-data-table>
+        </div>
+
+        <!-- Admin/Manager Section -->
+        <div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">
+                    {{ isAdmin ? 'Company Leaves' : 'Pending Approvals' }}
+                </h2>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div *ngIf="isAdmin" class="px-4 pt-4 border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button *ngFor="let tab of adminTabs" (click)="setAdminTab(tab)"
+                        [class.border-blue-500]="activeAdminTab === tab" [class.text-blue-600]="activeAdminTab === tab"
+                        [class.border-transparent]="activeAdminTab !== tab"
+                        [class.text-gray-500]="activeAdminTab !== tab"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors">
+                        {{ tab }}
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-4">
+                <app-data-table [data]="isAdmin ? allLeaves : pendingApprovals" [columns]="pendingColumns"
+                    [actions]="pendingActions" (actionClicked)="handleAction($event)" [showRefresh]="true"
+                    (refresh)="isAdmin ? loadAllLeaves() : loadPendingApprovals()">
+                </app-data-table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apply Leave Modal -->
+    <div *ngIf="showApplyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg border border-gray-100 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 class="text-xl font-bold font-heading text-gray-800 dark:text-white">Apply Leave</h2>
+                <button (click)="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Leave Type *</label>
+                    <div class="relative">
+                        <app-dropdown [options]="leaveTypeOptions" [(ngModel)]="newLeave.leave_type"
+                            placeholder="Select Type" [required]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date *</label>
+                        <input type="date" [(ngModel)]="newLeave.start_date" class="input" required>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">End Date *</label>
+                        <input type="date" [(ngModel)]="newLeave.end_date" class="input" required>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Reason *</label>
+                    <textarea [(ngModel)]="newLeave.reason" rows="3" class="input resize-none"
+                        placeholder="Provide a brief reason..." required></textarea>
+                </div>
+            </div>
+
+            <div
+                class="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-black/20 rounded-b-2xl">
+                <button (click)="closeModal()" class="btn-secondary">Cancel</button>
+                <button (click)="applyLeave()" class="btn-primary">
+                    <i class="fas fa-paper-plane mr-2"></i> Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allocation Modal -->
+    <div *ngIf="showAllocationModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg border border-gray-100 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold font-heading text-gray-800 dark:text-white">Batch Allocate Leaves</h2>
+                    <p class="text-sm text-gray-500">Assign leave balance to employee groups</p>
+                </div>
+                <button (click)="closeAllocationModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Year *</label>
+                        <input type="number" [(ngModel)]="allocationData.year" class="input" required>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Days *</label>
+                        <input type="number" [(ngModel)]="allocationData.days" class="input" required>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Employment Type *</label>
+                    <app-dropdown [options]="employmentTypeOptions" [(ngModel)]="allocationData.employment_type"
+                        placeholder="Select Employment Type" [required]="true">
+                    </app-dropdown>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Designation (Optional)</label>
+                    <app-dropdown [options]="designationOptions" [(ngModel)]="allocationData.designation"
+                        placeholder="All Designations" [searchable]="true">
+                    </app-dropdown>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Leave Type *</label>
+                    <app-dropdown [options]="leaveTypeOptions" [(ngModel)]="allocationData.leave_type_id"
+                        placeholder="Select Leave Type" [required]="true">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <div
+                class="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-black/20 rounded-b-2xl">
+                <button (click)="closeAllocationModal()" class="btn-secondary">Cancel</button>
+                <button (click)="allocateLeave()" class="btn-primary">
+                    <i class="fas fa-check-circle mr-2"></i> Allocate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+<span class="inline-flex flex-col h-[1.25em] overflow-hidden align-bottom relative width-max">
+    <!-- Invisible spacer to set width based on longest word -->
+    <span class="invisible h-0 font-bold" aria-hidden="true">{{ longestText }}</span>
+
+    <span *ngFor="let word of words; let i = index"
+        class="absolute top-0 left-0 whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600 font-bold"
+        [@slideUp]="i === currentIndex ? 'in' : 'out'">
+        {{ word }}
+    </span>
+</span>

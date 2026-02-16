@@ -1,0 +1,157 @@
+<div class="space-y-6 animate-fade-in p-2 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold font-heading text-gray-900 dark:text-white">
+                Permission Management
+            </h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Configure role-based access control with module grouping and templates
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button *ngIf="authService.hasPermission('permission:EDIT')" class="btn-secondary" (click)="loadMatrix()"
+                [disabled]="isLoading()">
+                <i class="fas fa-sync-alt" [class.fa-spin]="isLoading()"></i>
+                <span class="hidden sm:inline">Refresh</span>
+            </button>
+            <button *ngIf="authService.hasPermission('permission:EDIT')" class="btn-primary" (click)="saveMatrix()"
+                [disabled]="isSaving() || isLoading()">
+                <i class="fas" [ngClass]="{'fa-spinner fa-spin': isSaving(), 'fa-save': !isSaving()}"></i>
+                {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+        <p class="text-gray-500 dark:text-gray-400">Loading permissions...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading()" class="space-y-6">
+
+        <!-- Controls Section -->
+        <div class="card">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Role Selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user-tag mr-2"></i>Select Role
+                    </label>
+                    <select [(ngModel)]="selectedRoleId" class="input"
+                        (change)="selectedRoleId.set(+$any($event.target).value)">
+                        <option *ngFor="let role of roles()" [value]="role.id">
+                            {{ role.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Template Selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-magic mr-2"></i>Quick Apply Template
+                    </label>
+                    <select [(ngModel)]="selectedTemplate" class="input"
+                        (change)="applyTemplate($any($event.target).value)">
+                        <option value="">-- Choose Template --</option>
+                        <option *ngFor="let template of getTemplateOptions()" [value]="template.value">
+                            {{ template.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-search mr-2"></i>Search Permissions
+                    </label>
+                    <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="searchQuery.set($event)"
+                        placeholder="Type to filter..." class="input">
+                </div>
+            </div>
+        </div>
+
+        <!-- No Role Selected -->
+        <div *ngIf="!selectedRole()" class="card text-center py-12">
+            <i class="fas fa-user-shield text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400">Select a role to manage permissions</p>
+        </div>
+
+        <!-- Permission Groups -->
+        <div *ngIf="selectedRole()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div *ngFor="let group of groupedPermissions()" class="card hover:shadow-lg transition-shadow">
+
+                <!-- Group Header -->
+                <div class="flex items-start justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                            <i [class]="group.config.icon + ' text-primary-600 dark:text-primary-400'"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">
+                                {{ group.config.label }}
+                            </h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ group.config.description }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-primary-600 dark:text-primary-400">
+                        {{ group.selectedCount }}/{{ group.totalCount }}
+                    </div>
+                </div>
+
+                <!-- Select All -->
+                <div class="mb-3 pb-3 border-b border-gray-100 dark:border-gray-800">
+                    <label
+                        class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors">
+                        <input type="checkbox" [checked]="group.selectedCount === group.totalCount"
+                            [indeterminate]="group.selectedCount > 0 && group.selectedCount < group.totalCount"
+                            (change)="toggleModulePermissions(group.key, $any($event.target).checked)"
+                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Select All
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Permissions List -->
+                <div class="space-y-2">
+                    <label *ngFor="let permission of group.permissions"
+                        class="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <input type="checkbox" [checked]="permission.granted" (change)="togglePermission(permission)"
+                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-xs font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                    {{ permission.action }}
+                                </span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                    {{ permission.resource }}
+                                </span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Empty State -->
+                    <div *ngIf="group.permissions.length === 0" class="text-center py-4 text-sm text-gray-400">
+                        No permissions match your search
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="selectedRole() && groupedPermissions().length === 0" class="card text-center py-12">
+            <i class="fas fa-search text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400">No permissions found matching "{{ searchQuery() }}"</p>
+            <button (click)="searchQuery.set('')" class="btn-secondary mt-4">
+                Clear Search
+            </button>
+        </div>
+    </div>
+</div>

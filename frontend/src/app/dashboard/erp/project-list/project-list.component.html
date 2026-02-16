@@ -1,0 +1,34 @@
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Active Projects</h2>
+        <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+            New Project
+        </button>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let project of projects()"
+            class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ project.name }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ project.client_name }}</p>
+                </div>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {{ project.status }}
+                </span>
+            </div>
+
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                {{ project.description || 'No description provided.' }}
+            </p>
+
+            <div
+                class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                <span>Mgr: {{ project.manager_name || 'Unassigned' }}</span>
+                <span>Due: {{ project.end_date | date }}</span>
+            </div>
+        </div>
+    </div>
+</div>

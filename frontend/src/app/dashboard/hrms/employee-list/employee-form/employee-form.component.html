@@ -1,0 +1,463 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12 relative animate-fade-in">
+
+    <!-- Header Banner -->
+    <div class="h-64 w-full relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900"></div>
+        <div class="absolute inset-0 bg-grid-white/[0.05] bg-[length:32px_32px]"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+
+        <div class="absolute top-8 left-4 sm:left-8 z-10 flex items-center justify-between w-full pr-8">
+            <button (click)="cancel()" class="text-white/70 hover:text-white flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i> <span>Back to List</span>
+            </button>
+        </div>
+
+        <div
+            class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 dark:from-slate-900 to-transparent">
+        </div>
+    </div>
+
+    <!-- Main Form Container -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 -mt-32">
+
+        <div class="flex items-end justify-between mb-8 px-2">
+            <div>
+                <span
+                    class="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-500/30 text-xs font-bold tracking-wider uppercase mb-2">
+                    {{ isEdit() ? 'Update Record' : 'New Entry' }}
+                </span>
+                <h1 class="text-4xl font-bold font-heading text-white">
+                    {{ isEdit() ? 'Edit Employee' : 'Create Employee' }}
+                </h1>
+            </div>
+
+            <!-- Global Actions -->
+            <div class="flex gap-3">
+                <button type="button" *ngIf="!isEdit() || currentEmployee().employee_status === 'DRAFT'"
+                    (click)="saveAsDraft()" [disabled]="isSubmitting()"
+                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 hover:-translate-y-0.5">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <button (click)="save()" [disabled]="isSubmitting()"
+                    class="px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 border-0 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <i *ngIf="isSubmitting()" class="fas fa-circle-notch fa-spin"></i>
+                    {{ isEdit() ? 'Update Employee' : 'Create Employee' }}
+                </button>
+            </div>
+        </div>
+
+        <form (ngSubmit)="save()" class="space-y-6">
+
+            <!-- 1. Personal Details -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('personal')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Personal Information</h2>
+                            <p class="text-xs text-slate-500">Basic identification details</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'personal'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'personal'" @expandCollapse
+                    class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Names -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">First Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" [(ngModel)]="currentEmployee().first_name" name="first_name"
+                            class="input py-3" placeholder="John" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Last Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" [(ngModel)]="currentEmployee().last_name" name="last_name" class="input py-3"
+                            placeholder="Doe" required>
+                    </div>
+
+                    <!-- Email & Mobile -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="email" [(ngModel)]="currentEmployee().personal_email" name="personal_email"
+                                class="input py-3 pl-11" placeholder="john.doe@example.com" required>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Mobile Number</label>
+                        <div class="relative">
+                            <i class="fas fa-phone absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="tel" [(ngModel)]="currentEmployee().mobile_number" name="mobile_number"
+                                class="input py-3 pl-11" placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+
+                    <!-- DOB & Gender -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Date of Birth</label>
+                        <input type="date" [(ngModel)]="currentEmployee().date_of_birth" name="date_of_birth"
+                            class="input py-3">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Gender</label>
+                        <app-dropdown [options]="genderOptions" [(ngModel)]="currentEmployee().gender" name="gender"
+                            placeholder="Select Gender"></app-dropdown>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Employment Details -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('employment')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Employment Details</h2>
+                            <p class="text-xs text-slate-500">Role, Department, and Salary</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'employment'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'employment'" @expandCollapse
+                    class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Code & Joining -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Employee Code</label>
+                        <input type="text" [(ngModel)]="currentEmployee().employee_code" name="employee_code"
+                            class="input py-3 bg-slate-50 dark:bg-slate-900 text-slate-500 cursor-not-allowed" readonly>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Joining Date <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" [(ngModel)]="currentEmployee().joining_date" name="joining_date"
+                            class="input py-3" required>
+                    </div>
+
+                    <!-- Designation & Dept -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Designation <span
+                                class="text-red-500">*</span></label>
+                        <app-dropdown [options]="designationOptions()" [(ngModel)]="currentEmployee().designation"
+                            name="designation" placeholder="Select Designation" [searchable]="true"
+                            [required]="true"></app-dropdown>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Department <span
+                                class="text-red-500">*</span></label>
+                        <app-dropdown [options]="departmentOptions()" [(ngModel)]="currentEmployee().department"
+                            name="department" placeholder="Select Department" [searchable]="true"
+                            [required]="true"></app-dropdown>
+                    </div>
+
+                    <!-- Manager & Type -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Reporting Manager</label>
+                        <app-dropdown [options]="managerOptions()" [(ngModel)]="currentEmployee().reporting_manager"
+                            name="reporting_manager" placeholder="Select Manager" [searchable]="true"></app-dropdown>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Employment Type</label>
+                        <app-dropdown [options]="employmentTypeOptions" [(ngModel)]="currentEmployee().employment_type"
+                            name="employment_type" placeholder="Select Type"></app-dropdown>
+                    </div>
+
+                    <!-- Salary & Status -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Salary <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-slate-500">$</span>
+                            <input type="number" [(ngModel)]="currentEmployee().salary" name="salary"
+                                class="input py-3 pl-8" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Status</label>
+                        <app-dropdown [options]="employeeStatusOptions" [(ngModel)]="currentEmployee().employee_status"
+                            name="employee_status" placeholder="Select Status"></app-dropdown>
+                    </div>
+
+                    <!-- System Role -->
+                    <div class="md:col-span-2 space-y-2 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">System Role Access</label>
+                        <app-dropdown [options]="roleOptions()" [(ngModel)]="currentEmployee().user_role"
+                            name="user_role" placeholder="No System Access"></app-dropdown>
+                        <p class="text-xs text-slate-500">Assigning a system role allows the employee to log in to the
+                            portal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Address -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('address')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Address Details</h2>
+                            <p class="text-xs text-slate-500">Residence information</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'address'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'address'" @expandCollapse
+                    class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Current Address</label>
+                        <textarea rows="3" [(ngModel)]="currentEmployee().current_address" name="current_address"
+                            class="input py-3 leading-relaxed"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Permanent Address</label>
+                        <textarea rows="3" [(ngModel)]="currentEmployee().permanent_address" name="permanent_address"
+                            class="input py-3 leading-relaxed"></textarea>
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="checkbox" id="copyAddress" (change)="copyAddress()"
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="copyAddress"
+                                class="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">Same as Current
+                                Address</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Education (Simplified List) -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('education')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Education History</h2>
+                            <p class="text-xs text-slate-500">Academic qualifications</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'education'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'education'" @expandCollapse class="p-8">
+                    <button type="button" (click)="addEducation()" class="btn-secondary btn-sm mb-6">
+                        <i class="fas fa-plus mr-2"></i> Add Qualification
+                    </button>
+
+                    <div class="space-y-4">
+                        <div *ngFor="let edu of currentEmployee()?.education; let i = index"
+                            class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group">
+                            <button type="button" (click)="removeEducation(i)"
+                                class="absolute top-2 right-2 p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                                <input [(ngModel)]="edu.institution" [name]="'edu_inst_'+i" class="input input-sm"
+                                    placeholder="Institution">
+                                <input [(ngModel)]="edu.degree" [name]="'edu_deg_'+i" class="input input-sm"
+                                    placeholder="Degree">
+                                <input [(ngModel)]="edu.field_of_study" [name]="'edu_field_'+i" class="input input-sm"
+                                    placeholder="Field of Study">
+                                <input type="date" [(ngModel)]="edu.start_date" [name]="'edu_date_'+i"
+                                    class="input input-sm">
+
+                                <!-- Document Upload -->
+                                <div class="md:col-span-2 flex items-center gap-4 mt-2">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">Degree
+                                            Certificate</label>
+                                        <input type="file" (change)="uploadFile($event, 'education', i)" class="block w-full text-sm text-slate-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-xs file:font-semibold
+                                            file:bg-blue-50 file:text-blue-700
+                                            hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                                    </div>
+                                    <div *ngIf="edu.document_details"
+                                        class="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full border border-green-100 dark:border-green-800">
+                                        <i class="fas fa-check-circle"></i>
+                                        <a [href]="edu.document_details.file_url" target="_blank"
+                                            class="hover:underline truncate max-w-[150px]">{{
+                                            edu.document_details.document_name }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!currentEmployee()?.education?.length"
+                            class="text-center py-6 text-slate-500 text-sm italic">
+                            No education records added.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Experience -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('experience')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Work Experience</h2>
+                            <p class="text-xs text-slate-500">Previous employment history</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'experience'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'experience'" @expandCollapse class="p-8">
+                    <button type="button" (click)="addExperience()" class="btn-secondary btn-sm mb-6">
+                        <i class="fas fa-plus mr-2"></i> Add Experience
+                    </button>
+                    <div class="space-y-4">
+                        <div *ngFor="let exp of currentEmployee()?.experience; let i = index"
+                            class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative">
+                            <button type="button" (click)="removeExperience(i)"
+                                class="absolute top-2 right-2 p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                                <input [(ngModel)]="exp.company_name" [name]="'exp_comp_'+i" class="input input-sm"
+                                    placeholder="Company">
+                                <input [(ngModel)]="exp.designation" [name]="'exp_desig_'+i" class="input input-sm"
+                                    placeholder="Job Title">
+                                <input type="date" [(ngModel)]="exp.start_date" [name]="'exp_start_'+i"
+                                    class="input input-sm">
+                                <input type="date" [(ngModel)]="exp.end_date" [name]="'exp_end_'+i"
+                                    class="input input-sm" [disabled]="exp.is_current">
+                                <div class="md:col-span-2 pt-2">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" [(ngModel)]="exp.is_current" [name]="'exp_curr_'+i"
+                                            class="rounded border-gray-300 text-blue-600">
+                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Currently
+                                            Working Here</span>
+                                    </label>
+                                </div>
+
+                                <!-- Document Upload -->
+                                <div
+                                    class="md:col-span-2 flex items-center gap-4 mt-2 border-t border-slate-200 dark:border-slate-700 pt-4">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">Experience Letter /
+                                            Relieving Letter</label>
+                                        <input type="file" (change)="uploadFile($event, 'experience', i)"
+                                            class="block w-full text-sm text-slate-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-xs file:font-semibold
+                                            file:bg-amber-50 file:text-amber-700
+                                            hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400">
+                                    </div>
+                                    <div *ngIf="exp.document_details"
+                                        class="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full border border-green-100 dark:border-green-800">
+                                        <i class="fas fa-check-circle"></i>
+                                        <a [href]="exp.document_details.file_url" target="_blank"
+                                            class="hover:underline truncate max-w-[150px]">{{
+                                            exp.document_details.document_name }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!currentEmployee()?.experience?.length"
+                            class="text-center py-6 text-slate-500 text-sm italic">
+                            No experience records added.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Background Verif -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                    (click)="toggleSection('bgv')">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Background Check</h2>
+                            <p class="text-xs text-slate-500">Verification status and reports</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300"
+                        [class.rotate-180]="activeSection() === 'bgv'"></i>
+                </div>
+
+                <div *ngIf="activeSection() === 'bgv'" @expandCollapse class="p-8">
+                    <button type="button" (click)="addBGV()" class="btn-secondary btn-sm mb-6">
+                        <i class="fas fa-plus mr-2"></i> Add Verification
+                    </button>
+                    <div class="space-y-4">
+                        <div *ngFor="let bgv of currentEmployee()?.bgv_checks; let i = index"
+                            class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative">
+                            <button type="button" (click)="removeBGV(i)"
+                                class="absolute top-2 right-2 p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                                <input [(ngModel)]="bgv.agency_name" [name]="'bgv_ag_'+i" class="input input-sm"
+                                    placeholder="Agency">
+                                <input [(ngModel)]="bgv.check_type" [name]="'bgv_type_'+i" class="input input-sm"
+                                    placeholder="Type (e.g. Criminal)">
+                                <app-dropdown [options]="bgvStatusOptions" [(ngModel)]="bgv.status"
+                                    [name]="'bgv_stat_'+i" placeholder="Status"></app-dropdown>
+                                <input type="date" [(ngModel)]="bgv.verification_date" [name]="'bgv_date_'+i"
+                                    class="input input-sm">
+                                <textarea [(ngModel)]="bgv.remarks" [name]="'bgv_rem_'+i"
+                                    class="input input-sm md:col-span-2" placeholder="Remarks" rows="1"></textarea>
+                            </div>
+                        </div>
+                        <div *ngIf="!currentEmployee()?.bgv_checks?.length"
+                            class="text-center py-6 text-slate-500 text-sm italic">
+                            No verification records added.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex justify-end gap-4 py-8">
+                <button type="button" (click)="cancel()" class="btn-secondary px-8">Cancel</button>
+                <button type="submit" [disabled]="isSubmitting()"
+                    class="btn-primary px-8 text-lg shadow-xl shadow-blue-500/20">
+                    <i *ngIf="isSubmitting()" class="fas fa-circle-notch fa-spin mr-2"></i>
+                    {{ isEdit() ? 'Update Employee' : 'Create Employee' }}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>

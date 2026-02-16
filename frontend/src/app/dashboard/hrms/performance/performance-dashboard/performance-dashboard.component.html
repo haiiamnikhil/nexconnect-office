@@ -1,0 +1,84 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Performance Overview</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Track your goals, appraisals, and feedback.</p>
+        </div>
+        <a routerLink="/dashboard/performance/goals" class="btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-target w-5 h-5" aria-hidden="true"></i>
+            <span>Set New Goal</span>
+        </a>
+    </div>
+
+    <!-- Active Cycle Banner -->
+    <div *ngIf="cycles().length > 0"
+        class="card p-8 bg-gradient-to-r from-primary-600 to-blue-700 dark:from-primary-700 dark:to-blue-800 text-white border-0">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-1">Current Appraisal Cycle</p>
+                <h2 class="text-2xl font-bold">{{ cycles()[0].name }}</h2>
+                <p class="text-sm mt-1 opacity-90">Ends on {{ cycles()[0].end_date | date }}</p>
+            </div>
+            <div class="hidden sm:block">
+                <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium uppercase border border-white/10">
+                    {{ cycles()[0].status }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Goals Card -->
+        <a routerLink="/dashboard/performance/goals" class="card group cursor-pointer border-l-4 border-l-primary-500">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active
+                        Goals</p>
+                    <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ goals().length }}</h3>
+                </div>
+                <div
+                    class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg group-hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-bullseye text-xl w-6 h-6" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">45% Completion Average</p>
+            </div>
+        </a>
+
+        <!-- Pending Reviews -->
+        <div class="card border-l-4 border-l-orange-500">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending
+                        Reviews</p>
+                    <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ reviews().length }}</h3>
+                </div>
+                <div class="p-3 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-lg">
+                    <i class="fas fa-clipboard-check text-xl"></i>
+                </div>
+            </div>
+            <div *ngFor="let review of reviews()" class="mt-4 space-y-2">
+                <a [routerLink]="['/dashboard/performance/appraisals', review.id]"
+                    class="block text-sm p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-700 transition-all cursor-pointer">
+                    <div class="flex justify-between">
+                        <span class="font-medium text-gray-900 dark:text-white">{{ review.cycle_name }}</span>
+                        <span
+                            class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                            {{ review.status }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Reviewer: {{ review.reviewer_name || 'Pending Assignment' }}
+                    </p>
+                </a>
+            </div>
+            <p *ngIf="reviews().length === 0" class="mt-4 text-xs text-center text-gray-400">No pending reviews.</p>
+        </div>
+    </div>
+</div>

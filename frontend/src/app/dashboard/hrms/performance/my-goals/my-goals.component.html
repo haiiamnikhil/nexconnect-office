@@ -1,0 +1,149 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">My Goals</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your OK Rs and performance objectives.</p>
+        </div>
+        <button (click)="openCreateModal()" class="btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-plus w-5 h-5" aria-hidden="true"></i>
+            <span>Add New Goal</span>
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex items-center gap-4 text-sm">
+        <div class="card px-4 py-2 flex-shrink-0">
+            <span class="text-gray-500 dark:text-gray-400">Total Weightage:</span>
+            <span class="ml-2 font-bold" [class.text-green-600]="totalWeightage === 100"
+                [class.text-red-500]="totalWeightage !== 100">
+                {{ totalWeightage }}%
+            </span>
+        </div>
+        <div class="card px-4 py-2 flex-shrink-0">
+            <span class="text-gray-500 dark:text-gray-400">Total Goals:</span>
+            <span class="ml-2 font-bold text-gray-800 dark:text-white">{{ goals().length }}</span>
+        </div>
+    </div>
+
+    <!-- Goals List -->
+    <div class="grid gap-4">
+        <div *ngFor="let goal of goals()" class="card cursor-pointer">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2 py-0.5 text-xs font-medium rounded-full border"
+                            [ngClass]="goal.category === 'WORK' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800' : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'">
+                            {{ goal.category }}
+                        </span>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ goal.title }}</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">{{ goal.description }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button (click)="openEditModal(goal)"
+                        class="p-2 text-gray-400 hover:text-primary-600 transition-colors" aria-label="Edit goal">
+                        <i class="fas fa-edit w-4 h-4" aria-hidden="true"></i>
+                    </button>
+                    <button (click)="deleteGoal(goal.id)" class="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                        aria-label="Delete goal">
+                        <i class="fas fa-trash-alt w-4 h-4" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between text-sm">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500 dark:text-gray-400">Weightage:</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ goal.weightage }}%</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500 dark:text-gray-400">Progress:</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ goal.progress }}%</span>
+                    </div>
+                </div>
+                <span class="px-2 py-1 text-xs rounded-full font-medium border" [ngClass]="{
+                        'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400': goal.status === 'PENDING',
+                        'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400': goal.status === 'IN_PROGRESS',
+                        'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400': goal.status === 'COMPLETED'
+                    }">
+                    {{ goal.status.replace('_', ' ') }}
+                </span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div class="bg-blue-600 h-1.5 rounded-full" [style.width.%]="goal.progress"></div>
+            </div>
+        </div>
+
+        <div *ngIf="goals().length === 0" class="card text-center py-12 bg-gray-50 dark:bg-gray-800/50 border-dashed">
+            <i class="fas fa-clipboard-list text-5xl text-gray-300 dark:text-gray-600 mb-3" aria-hidden="true"></i>
+            <p class="text-gray-500 dark:text-gray-400">No goals set for this cycle yet.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+        class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg border border-gray-100 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-xl font-bold font-heading text-gray-800 dark:text-white">
+                {{ isEditing() ? 'Edit Goal' : 'Create New Goal' }}
+            </h3>
+            <button (click)="closeModal()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Goal Title</label>
+                    <input type="text" formControlName="title" class="input">
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                    <textarea formControlName="description" rows="3" class="input resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <app-dropdown label="Category" formControlName="category" [options]="categoryOptions()"
+                            placeholder="Select Category">
+                        </app-dropdown>
+                    </div>
+                    <div class="space-y-1">
+                        <app-dropdown label="Cycle" formControlName="cycle" [options]="cycleOptions()"
+                            placeholder="Select Cycle">
+                        </app-dropdown>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Weightage (%)</label>
+                        <input type="number" formControlName="weightage" class="input">
+                    </div>
+                    <div *ngIf="isEditing()" class="space-y-1">
+                        <app-dropdown label="Status" formControlName="status" [options]="statusOptions()"
+                            placeholder="Select Status">
+                        </app-dropdown>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" (click)="closeModal()" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="goalForm.invalid" class="btn-primary">
+                    <i class="fas fa-save"></i> {{ isEditing() ? 'Update' : 'Create' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,163 @@
+<div class="p-6 space-y-6 animate-fade-in max-w-[1600px] mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-900 dark:text-white">Organization Overview</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Manage your company structure, departments, and
+                designations.</p>
+        </div>
+        <div class="flex gap-3">
+            <button class="btn-primary flex items-center gap-2">
+                <i class="fas fa-plus"></i>
+                <span>Add Entity</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Departments Stat -->
+        <div class="card p-6 flex items-center justify-between relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Departments</p>
+                <h3
+                    class="text-3xl font-bold text-gray-900 dark:text-white mt-1 group-hover:scale-105 transition-transform">
+                    {{departments.length}}</h3>
+            </div>
+            <div
+                class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center text-xl relative z-10">
+                <i class="fas fa-building"></i>
+            </div>
+        </div>
+
+        <!-- Designations Stat -->
+        <div class="card p-6 flex items-center justify-between relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Designations</p>
+                <h3
+                    class="text-3xl font-bold text-gray-900 dark:text-white mt-1 group-hover:scale-105 transition-transform">
+                    {{designations.length}}</h3>
+            </div>
+            <div
+                class="w-12 h-12 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center text-xl relative z-10">
+                <i class="fas fa-user-tag"></i>
+            </div>
+        </div>
+
+        <!-- Locations Stat -->
+        <div class="card p-6 flex items-center justify-between relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Office Locations</p>
+                <h3
+                    class="text-3xl font-bold text-gray-900 dark:text-white mt-1 group-hover:scale-105 transition-transform">
+                    {{locations.length}}</h3>
+            </div>
+            <div
+                class="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/20 text-green-500 flex items-center justify-center text-xl relative z-10">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Departments List (Left Col - Span 2) -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Departments Section -->
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white font-heading">Departments</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let dept of departments"
+                    class="card p-4 hover:border-primary-500 hover:shadow-md transition-all cursor-pointer group hover:-translate-y-1">
+                    <div class="flex justify-between items-start">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-500 dark:text-gray-400 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 group-hover:text-primary-500 transition-colors">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <span
+                            class="px-2 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300">
+                            {{dept.employee_count || 0}} Employees
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mt-3">{{dept.name}}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{dept.description || 'No
+                        description provided.'}}</p>
+                </div>
+            </div>
+
+            <!-- Designations Table -->
+            <div class="card mt-8 overflow-hidden">
+                <div
+                    class="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-900 dark:text-white">Designation Hierarchy</h3>
+                    <button class="text-sm text-primary-600 hover:text-primary-700 font-medium">View All</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead
+                            class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
+                            <tr>
+                                <th class="px-6 py-3 font-medium">Title</th>
+                                <th class="px-6 py-3 font-medium">Level</th>
+                                <th class="px-6 py-3 font-medium">Department</th>
+                                <th class="px-6 py-3 font-medium">Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                            <tr *ngFor="let design of designations"
+                                class="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-3 font-medium text-gray-900 dark:text-white">{{design.title}}</td>
+                                <td class="px-6 py-3">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-mono">
+                                        L{{design.level}}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-400">{{design.department_name || '-'}}
+                                </td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-400">{{design.employee_count || 0}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Col: Locations -->
+        <div class="space-y-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white font-heading">Locations</h2>
+
+            <div class="space-y-4">
+                <div *ngFor="let loc of locations"
+                    class="card p-4 relative overflow-hidden hover:border-primary-500 transition-colors group">
+                    <!-- HQ Badge -->
+                    <div *ngIf="loc.is_headquarters"
+                        class="absolute top-0 right-0 bg-primary-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-bl-lg shadow-sm">
+                        HQ
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center shrink-0 text-lg">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 dark:text-white">{{loc.name}}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-0.5">{{loc.city}},
+                                {{loc.state}}</p>
+                            <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                <i class="fas fa-location-arrow text-[10px]"></i> {{loc.address}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

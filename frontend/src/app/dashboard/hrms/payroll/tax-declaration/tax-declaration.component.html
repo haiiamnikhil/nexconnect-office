@@ -1,0 +1,115 @@
+<div class="space-y-6 animate-fade-in relative z-10">
+    <!-- Header -->
+    <div class="card p-6 rounded-2xl flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-900 dark:text-white">Tax Declarations</h1>
+            <p class="text-gray-500 dark:text-gray-400">Submit proofs for tax saving investments.</p>
+        </div>
+        <button *ngIf="!authService.hasRole('Admin')" (click)="startNew()" class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i> New Declaration
+        </button>
+    </div>
+
+    <!-- Declarations List -->
+    <div class="card p-6 rounded-2xl">
+        <app-data-table [data]="declarations()" [columns]="columns" [actions]="actions" [loading]="isLoading()"
+            [showRefresh]="true" (refresh)="loadDeclarations()" (actionClick)="handleAction($event)">
+        </app-data-table>
+    </div>
+
+    <!-- Create Modal (Employee) -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/10">
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                <h3 class="text-lg font-bold font-heading text-gray-900 dark:text-white">New Tax Declaration</h3>
+                <button (click)="showForm = false" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Financial
+                        Year</label>
+                    <input type="text" [(ngModel)]="newDecl.financial_year" class="input w-full" readonly>
+                </div>
+                <div>
+                    <app-dropdown label="Section" [options]="sectionOptions()" [(ngModel)]="newDecl.section"
+                        placeholder="Select Section">
+                    </app-dropdown>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Declared
+                        Amount</label>
+                    <input type="number" [(ngModel)]="newDecl.declared_amount" class="input w-full" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proof
+                        Document</label>
+                    <input type="file" (change)="onFileSelected($event)" class="input w-full">
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-100 dark:border-white/5 flex justify-end gap-3">
+                <button (click)="showForm = false" class="btn btn-ghost">Cancel</button>
+                <button (click)="saveDraft()" class="btn btn-primary">Save Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal (Admin) -->
+    <div *ngIf="showReview && selectedDecl"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/10">
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                <h3 class="text-lg font-bold font-heading text-gray-900 dark:text-white">Review Declaration</h3>
+                <button (click)="showReview = false" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-500">Employee:</span>
+                        <p class="font-medium">{{ selectedDecl.employee_name }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Section:</span>
+                        <p class="font-medium">{{ selectedDecl.section }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Declared:</span>
+                        <p class="font-medium">{{ selectedDecl.declared_amount | currency:'INR' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Proof:</span>
+                        <p *ngIf="selectedDecl.proof_document; else noDoc">
+                            <a [href]="selectedDecl.proof_document" target="_blank"
+                                class="text-primary-600 hover:underline">View Document</a>
+                        </p>
+                        <ng-template #noDoc>
+                            <p class="text-red-500">No Document</p>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 dark:border-white/5 pt-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Verified
+                        Amount</label>
+                    <input type="number" [(ngModel)]="reviewAmount" class="input w-full">
+                    <p class="text-xs text-gray-500 mt-1">Adjust if proof doesn't match declaration.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remarks</label>
+                    <textarea [(ngModel)]="remarks" class="input w-full h-20"
+                        placeholder="Optional comments..."></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-100 dark:border-white/5 flex justify-end gap-3">
+                <button (click)="submitReview('REJECTED')" class="btn btn-warning">Reject</button>
+                <button (click)="submitReview('APPROVED')" class="btn btn-primary">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,253 @@
+.role-management-container {
+  padding: 20px;
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    h2 {
+      margin: 0;
+      color: #333;
+    }
+  }
+  
+  .search-bar {
+    margin-bottom: 20px;
+    
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      
+      &:focus {
+        outline: none;
+        border-color: #4CAF50;
+      }
+    }
+  }
+  
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    
+    .roles-table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      thead {
+        background: #f5f5f5;
+        
+        th {
+          padding: 12px 15px;
+          text-align: left;
+          font-weight: 600;
+          color: #555;
+          font-size: 14px;
+        }
+      }
+      
+      tbody {
+        tr {
+          border-bottom: 1px solid #eee;
+          transition: background 0.2s;
+          
+          &:hover {
+            background: #f9f9f9;
+          }
+          
+          td {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #666;
+            
+            &.actions {
+              display: flex;
+              gap: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    
+    &.badge-info {
+      background: #E3F2FD;
+      color: #1976D2;
+    }
+    
+    &.badge-success {
+      background: #E8F5E9;
+      color: #388E3C;
+    }
+    
+    &.badge-warning {
+      background: #FFF3E0;
+      color: #F57C00;
+    }
+  }
+  
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    
+    &.btn-primary {
+      background: #4CAF50;
+      color: white;
+      
+      &:hover {
+        background: #45a049;
+      }
+    }
+    
+    &.btn-secondary {
+      background: #757575;
+      color: white;
+      
+      &:hover {
+        background: #616161;
+      }
+    }
+    
+    &.btn-danger {
+      background: #f44336;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: #da190b;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    &.btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    
+    .icon {
+      margin-right: 4px;
+    }
+  }
+  
+  .no-data {
+    padding: 40px;
+    text-align: center;
+    color: #999;
+  }
+  
+  .loading {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+  }
+}
+
+// Modal styles
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      h3 {
+        margin: 0;
+        color: #333;
+      }
+      
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+    
+    .modal-body {
+      padding: 20px;
+      
+      .form-group {
+        margin-bottom: 16px;
+        
+        label {
+          display: block;
+          margin-bottom: 6px;
+          font-weight: 500;
+          color: #555;
+          font-size: 14px;
+        }
+        
+        .form-control {
+          width: 100%;
+          padding: 10px 12px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 14px;
+          
+          &:focus {
+            outline: none;
+            border-color: #4CAF50;
+          }
+        }
+        
+        textarea.form-control {
+          resize: vertical;
+        }
+      }
+    }
+    
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  }
+}

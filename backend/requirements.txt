@@ -1,0 +1,9 @@
+django==4.0
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+python-dotenv
+psycopg2-binary
+django-cors-headers
+django-environ
+Pillow

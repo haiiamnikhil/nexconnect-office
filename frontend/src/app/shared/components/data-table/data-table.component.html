@@ -1,0 +1,132 @@
+<div
+    class="card p-0 overflow-hidden border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-dark-card shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr
+                    class="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold tracking-wider">
+                    <th *ngFor="let col of columns"
+                        class="p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none group"
+                        (click)="sortBy(col.field)">
+                        <div class="flex items-center gap-2">
+                            {{col.header}}
+                            <span
+                                class="text-gray-300 dark:text-gray-600 group-hover:text-primary-500 transition-colors"
+                                [class.text-primary-500]="sortField === col.field">
+                                <i class="fas" [ngClass]="{
+                                    'fa-sort': sortField !== col.field,
+                                    'fa-sort-up': sortField === col.field && sortDir === 'asc',
+                                    'fa-sort-down': sortField === col.field && sortDir === 'desc'
+                                }"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th *ngIf="actions.length > 0" class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                <tr *ngFor="let row of pagedData" (click)="rowClick.emit(row)"
+                    class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
+                    <td *ngFor="let col of columns" class="p-4 text-sm">
+                        <!-- Text/Number -->
+                        <span
+                            *ngIf="(!col.type || col.type === 'text' || col.type === 'number') && (!col.format || isFunction(col.format))"
+                            class="text-gray-700 dark:text-gray-300">
+                            {{getValue(row, col)}}
+                        </span>
+
+                        <!-- Date -->
+                        <span *ngIf="col.type === 'date'" class="text-gray-500 dark:text-gray-400">
+                            {{getValue(row, col) | date:getDateFormat(col)}}
+                        </span>
+
+                        <!-- Currency -->
+                        <span *ngIf="col.type === 'currency'" class="text-gray-700 dark:text-gray-300 font-mono">
+                            {{getValue(row, col) | currency:'INR'}}
+                        </span>
+
+                        <!-- Badge -->
+                        <span *ngIf="col.type === 'badge'" class="px-2.5 py-1 rounded-full text-xs font-medium border"
+                            [ngClass]="getBadgeClass(col, getValue(row, col))">
+                            {{getValue(row, col)}}
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td *ngIf="actions.length > 0" class="p-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button *ngFor="let action of actions" (click)="onAction(action.action, row, $event)"
+                                class="p-1.5 rounded-lg transition-colors"
+                                [ngClass]="action.classes || 'text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20'"
+                                [title]="action.label">
+                                <i [class]="action.icon || 'fas fa-circle'"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Loading State -->
+                <tr *ngIf="loading">
+                    <td [attr.colspan]="columns.length + (actions.length ? 1 : 0)" class="p-8 text-center">
+                        <div class="flex justify-center">
+                            <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Loading State -->
+                <tr *ngIf="loading">
+                    <td [attr.colspan]="columns.length + (actions.length ? 1 : 0)" class="p-8 text-center">
+                        <div class="flex justify-center">
+                            <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="!loading && data.length === 0">
+                    <td [attr.colspan]="columns.length + (actions.length ? 1 : 0)"
+                        class="p-12 text-center text-gray-500 dark:text-gray-400">
+                        <div class="flex flex-col items-center gap-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                                <i class="fas fa-inbox text-xl text-gray-400"></i>
+                            </div>
+                            <p>No records found</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination and Refresh -->
+    <div *ngIf="!loading && (totalPages > 1 || showRefresh)"
+        class="p-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+
+        <div class="flex items-center gap-4">
+            <div *ngIf="totalPages > 1" class="text-sm text-gray-500 dark:text-gray-400">
+                Page <span class="font-medium text-gray-900 dark:text-white">{{currentPage}}</span> of <span
+                    class="font-medium text-gray-900 dark:text-white">{{totalPages}}</span>
+            </div>
+
+            <button *ngIf="showRefresh" (click)="refresh.emit()"
+                class="text-gray-500 hover:text-primary-600 transition-colors" title="Refresh Data">
+                <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+            </button>
+        </div>
+
+        <div *ngIf="totalPages > 1" class="flex gap-2">
+            <button
+                class="px-3 py-1 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 disabled:opacity-50 transition-colors"
+                [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+                Previous
+            </button>
+            <button
+                class="px-3 py-1 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 disabled:opacity-50 transition-colors"
+                [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+                Next
+            </button>
+        </div>
+    </div>
+</div>

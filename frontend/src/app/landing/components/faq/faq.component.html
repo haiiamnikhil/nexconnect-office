@@ -1,0 +1,38 @@
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4 md:px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-primary-600 font-semibold tracking-wide uppercase text-sm mb-3">FAQ</h2>
+            <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+            <p class="text-xl text-gray-600">Got questions? We've got answers.</p>
+        </div>
+
+        <div class="max-w-3xl mx-auto space-y-4">
+            <div *ngFor="let faq of faqs(); let i = index"
+                class="border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary-200 hover:shadow-md"
+                [class.bg-gray-50]="faq.isOpen" [class.bg-white]="!faq.isOpen">
+
+                <button (click)="toggle(i)"
+                    class="flex items-center justify-between w-full p-6 text-left focus:outline-none">
+                    <span class="text-lg font-bold text-gray-900">{{ faq.question }}</span>
+                    <span
+                        class="ml-4 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary-50 text-primary-600 transition-transform duration-300"
+                        [class.rotate-180]="faq.isOpen" [class.bg-primary-100]="faq.isOpen">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </span>
+                </button>
+
+                <div class="grid transition-[grid-template-rows] duration-300 ease-out"
+                    [style.grid-template-rows]="faq.isOpen ? '1fr' : '0fr'">
+                    <div class="overflow-hidden">
+                        <div class="p-6 pt-0 text-gray-600 leading-relaxed">
+                            {{ faq.answer }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

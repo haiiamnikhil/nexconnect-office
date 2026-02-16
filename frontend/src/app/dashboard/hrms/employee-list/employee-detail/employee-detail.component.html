@@ -1,0 +1,419 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <button (click)="goBack()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <i class="fas fa-arrow-left w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+        </button>
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Employee Details</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1" *ngIf="employee()">{{ getFullName(employee()!) }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button *ngIf="authService.hasPermission('employee:EDIT')"
+                class="btn-secondary inline-flex items-center gap-2" (click)="openEdit(employee()!)">
+                <i class="fas fa-edit w-4 h-4" aria-hidden="true"></i>
+                <span>Edit</span>
+            </button>
+            <button class="btn-primary inline-flex items-center gap-2" (click)="contactEmployee(employee()!)">
+                <i class="fas fa-envelope w-4 h-4" aria-hidden="true"></i>
+                <span>Contact</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="card text-center py-16">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-primary-500 mb-4" aria-hidden="true"></i>
+        <p class="text-gray-500 dark:text-gray-400">Loading employee details...</p>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading() && employee()">
+        <!-- Employee Header Card -->
+        <div class="card">
+            <div class="flex items-center gap-6">
+                <div
+                    class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/50 dark:to-primary-800/50 text-primary-700 dark:text-primary-300 flex items-center justify-center font-bold text-3xl shadow-lg">
+                    {{employee()!.first_name[0]}}{{employee()!.last_name[0]}}
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ getFullName(employee()!) }}</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">{{employee()!.designation || 'Not Assigned'}}</p>
+                    <div class="flex items-center gap-4 mt-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-id-card w-4 h-4 text-gray-400" aria-hidden="true"></i>
+                            <span
+                                class="text-sm text-gray-600 dark:text-gray-400 font-mono">{{employee()!.employee_code}}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-envelope w-4 h-4 text-gray-400" aria-hidden="true"></i>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{employee()!.personal_email}}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-phone w-4 h-4 text-gray-400" aria-hidden="true"></i>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{employee()!.mobile_number}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span
+                        class="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 rounded-full text-xs font-medium inline-flex items-center justify-center">
+                        <i class="fas fa-circle w-2 h-2 mr-2" aria-hidden="true"></i>
+                        Active
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Initial Password (Superuser Only) -->
+        <div *ngIf="(authService.currentUser()?.is_superuser) && employee()?.temp_password"
+            class="card mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10 dark:border-yellow-900/30">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-key text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Initial Password Generated</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Share this password with the employee for their first login. It will not be shown again once
+                        changed/cleared.
+                    </p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <code
+                            class="px-3 py-1 bg-white dark:bg-black/20 rounded border border-yellow-200 dark:border-yellow-900/50 font-mono text-lg font-bold text-gray-800 dark:text-gray-200 select-all">
+                            {{ employee()!.temp_password }}
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="flex gap-8">
+                <button (click)="setActiveTab('personal')"
+                    [class]="activeTab() === 'personal' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-user w-4 h-4" aria-hidden="true"></i>
+                    <span>Personal Information</span>
+                </button>
+                <button (click)="setActiveTab('employment')"
+                    [class]="activeTab() === 'employment' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-briefcase w-4 h-4" aria-hidden="true"></i>
+                    <span>Employment Details</span>
+                </button>
+                <button (click)="setActiveTab('documents')"
+                    [class]="activeTab() === 'documents' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-file-alt w-4 h-4" aria-hidden="true"></i>
+                    <span>Documents</span>
+                </button>
+                <button (click)="setActiveTab('performance')"
+                    [class]="activeTab() === 'performance' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-chart-line w-4 h-4" aria-hidden="true"></i>
+                    <span>Performance</span>
+                </button>
+                <button *ngIf="showActivities()" (click)="setActiveTab('audit-log')"
+                    [class]="activeTab() === 'audit-log' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-history w-4 h-4" aria-hidden="true"></i>
+                    <span>Audit Log</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="mt-6">
+            <!-- Personal Information Tab -->
+            <div *ngIf="activeTab() === 'personal'">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Basic Information Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Basic Information
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium">{{ getFullName(employee()!) }}
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Date of
+                                        Birth</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.date_of_birth || 'Not
+                                        provided'}}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Gender</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.gender || 'Not
+                                        provided'}}</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Marital
+                                        Status</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.marital_status || 'Not
+                                        provided'}}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Blood
+                                        Group</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white font-mono">{{employee()!.blood_group ||
+                                        'Not provided'}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Contact
+                            Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Personal
+                                    Email</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.personal_email}}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Company
+                                    Email</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not available</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Mobile
+                                    Number</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">{{employee()!.mobile_number}}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Current
+                                    Address</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.current_address || 'Not
+                                    provided'}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Emergency Contact
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Contact Name</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not provided</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Relationship</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not provided</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Phone Number</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">
+                                    Not provided</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Details Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Bank Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Account
+                                    Number</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">{{employee()!.account_number ||
+                                    'Not provided'}}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">IFSC Code</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">Not provided</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">PAN Number</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">{{employee()!.pan_number || 'Not
+                                    provided'}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Details Tab -->
+            <div *ngIf="activeTab() === 'employment'">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Employment Info Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Employment
+                            Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Employee
+                                    Code</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-mono">{{employee()!.employee_code}}
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Join
+                                        Date</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.joining_date || 'Not
+                                        provided'}}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Employment
+                                        Type</label>
+                                    <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.employment_type || 'Not
+                                        provided'}}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Department</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.department_name || 'Not
+                                    assigned'}}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Designation</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">{{employee()!.designation || 'Not
+                                    assigned'}}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Reporting
+                                    Manager</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not available</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Details Card -->
+                    <div class="card">
+                        <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Work Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Work
+                                    Location</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not assigned</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Probation
+                                    Status</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not applicable</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Notice
+                                    Period</label>
+                                <p class="mt-1 text-gray-900 dark:text-white">Not specified</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Tab -->
+            <div *ngIf="activeTab() === 'documents'">
+                <div class="card">
+                    <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Documents &
+                        Credentials</h3>
+                    <div class="text-center py-12">
+                        <i class="fas fa-file-alt text-4xl text-gray-300 dark:text-gray-600 mb-3"
+                            aria-hidden="true"></i>
+                        <p class="text-gray-500 dark:text-gray-400">No documents uploaded</p>
+                        <button *ngIf="authService.hasPermission('document:CREATE')"
+                            class="mt-4 btn-primary inline-flex items-center gap-2">
+                            <i class="fas fa-upload w-4 h-4" aria-hidden="true"></i>
+                            <span>Upload Document</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Tab -->
+            <div *ngIf="activeTab() === 'performance'">
+                <div class="card">
+                    <h3 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Performance Overview
+                    </h3>
+                    <div class="text-center py-12">
+                        <i class="fas fa-chart-line text-4xl text-gray-300 dark:text-gray-600 mb-3"
+                            aria-hidden="true"></i>
+                        <p class="text-gray-500 dark:text-gray-400">No performance data available</p>
+                        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Performance reviews and goals will
+                            appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Log Tab -->
+            <div *ngIf="activeTab() === 'audit-log' && showActivities()">
+                <div class="card p-0 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            <i class="fas fa-history text-primary-500"></i> Audit Log
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-4 font-medium">Time</th>
+                                    <th class="px-6 py-4 font-medium">Action</th>
+                                    <th class="px-6 py-4 font-medium">Module</th>
+                                    <th class="px-6 py-4 font-medium">Description</th>
+                                    <th class="px-6 py-4 font-medium">IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <tr *ngFor="let act of activities()"
+                                    class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                                        {{act.created_at | date:'medium'}}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span [ngClass]="{
+                                            'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': act.action === 'LOGIN',
+                                            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': act.action === 'CREATE',
+                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': act.action === 'UPDATE',
+                                            'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': act.action === 'DELETE'
+                                        }" class="px-2.5 py-1 rounded-full text-xs font-medium">
+                                            {{act.action}}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{act.module}}</td>
+                                    <td class="px-6 py-4 text-gray-600 dark:text-gray-300 max-w-sm truncate"
+                                        title="{{act.description}}">
+                                        {{act.description}}
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-gray-400 font-mono">
+                                        {{act.ip_address}}
+                                    </td>
+                                </tr>
+                                <tr *ngIf="activities().length === 0">
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <div class="flex flex-col items-center justify-center gap-2">
+                                            <i class="fas fa-search text-gray-300 text-3xl mb-2"></i>
+                                            <p>No activity logs found.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading() && !employee()" class="card text-center py-16">
+        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4" aria-hidden="true"></i>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Employee not found</p>
+        <button (click)="goBack()" class="mt-4 btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-arrow-left w-4 h-4" aria-hidden="true"></i>
+            <span>Back to Employee List</span>
+        </button>
+    </div>
+</div>

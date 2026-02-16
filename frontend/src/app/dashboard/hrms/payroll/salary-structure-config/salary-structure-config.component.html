@@ -1,0 +1,84 @@
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Salary Structures</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Define salary grades and their components.</p>
+        </div>
+        <div class="flex gap-2">
+            <a routerLink="/dashboard/payroll"
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                Back
+            </a>
+            <button (click)="toggleCreation()"
+                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm cursor-pointer">
+                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New Structure
+            </button>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div *ngIf="isCreating()"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 animate-in slide-in-from-top-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create New Structure</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Structure Name</label>
+                <input type="text" [(ngModel)]="newStructureName" placeholder="e.g. Grade A, Intern, Manager"
+                    class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Components</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div *ngFor="let comp of components()" (click)="toggleComponent(comp.id)"
+                        class="flex items-center p-3 rounded-lg border cursor-pointer transition-colors" [ngClass]="{
+                            'border-purple-500 bg-purple-50 dark:bg-purple-900/20': selectedComponentIds.has(comp.id),
+                            'border-gray-200 dark:border-gray-700 hover:border-purple-300': !selectedComponentIds.has(comp.id)
+                         }">
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900 dark:text-white">{{ comp.name }}</p>
+                            <p class="text-xs text-gray-500">{{ comp.calculation_type }} ({{ comp.value }})</p>
+                        </div>
+                        <div *ngIf="selectedComponentIds.has(comp.id)" class="text-purple-600">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-4">
+                <button (click)="isCreating.set(false)"
+                    class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer">Cancel</button>
+                <button (click)="createStructure()" [disabled]="isLoading() || !newStructureName"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg disabled:opacity-50 cursor-pointer">
+                    {{ isLoading() ? 'Creating...' : 'Create Structure' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let struct of structures()"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ struct.name }}</h3>
+            <div class="space-y-2">
+                <div *ngFor="let sc of struct.components" class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">{{ sc.component_details?.name }}</span>
+                    <span class="font-medium"
+                        [ngClass]="{'text-green-600': sc.component_details?.type === 'EARNING', 'text-red-500': sc.component_details?.type === 'DEDUCTION'}">
+                        {{ sc.component_details?.type === 'EARNING' ? '+' : '-' }}
+                        {{ sc.component_details?.value }}
+                        {{ sc.component_details?.calculation_type === 'PERCENTAGE' ? '%' : '' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

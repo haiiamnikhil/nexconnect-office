@@ -1,0 +1,36 @@
+<div class="card p-4 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shadow-sm">
+
+    <div *ngIf="isLoading()" class="flex items-center justify-center py-4">
+        <i class="fas fa-circle-notch fa-spin text-lg text-primary-500"></i>
+    </div>
+
+    <div *ngIf="!isLoading()" class="space-y-3">
+        <!-- Timer Display -->
+        <div class="text-center">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Attendance</p>
+            <div class="text-2xl font-mono font-bold text-gray-800 dark:text-white" [class.animate-pulse]="isPunchedIn">
+                {{ timerDisplay }}
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <button *ngIf="!isPunchedIn" (click)="checkIn()" [disabled]="actionLoading()"
+            class="w-full py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wide transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i *ngIf="!actionLoading()" class="fas fa-sign-in-alt text-sm"></i>
+            <i *ngIf="actionLoading()" class="fas fa-circle-notch fa-spin text-sm"></i>
+            <span>{{ actionLoading() ? 'Processing...' : 'Punch In' }}</span>
+        </button>
+
+        <button *ngIf="isPunchedIn" (click)="checkOut()" [disabled]="actionLoading()"
+            class="w-full py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wide transition-all duration-200 bg-gradient-to-r from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 text-red-600 dark:text-red-400 border-2 border-red-200 dark:border-red-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i *ngIf="!actionLoading()" class="fas fa-sign-out-alt text-sm"></i>
+            <i *ngIf="actionLoading()" class="fas fa-circle-notch fa-spin text-sm"></i>
+            <span>{{ actionLoading() ? 'Processing...' : 'Punch Out' }}</span>
+        </button>
+
+        <!-- Status Text -->
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500">
+            {{ isPunchedIn ? 'Duration since login' : 'Not logged in today' }}
+        </p>
+    </div>
+</div>

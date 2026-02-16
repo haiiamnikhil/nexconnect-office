@@ -1,0 +1,239 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <button (click)="goBack()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <i class="fas fa-arrow-left w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+        </button>
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Asset Details</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1" *ngIf="asset()">{{ asset()!.name }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="btn-secondary inline-flex items-center gap-2">
+                <i class="fas fa-edit w-4 h-4" aria-hidden="true"></i>
+                <span>Edit</span>
+            </button>
+            <button class="btn-primary inline-flex items-center gap-2">
+                <i class="fas fa-user-plus w-4 h-4" aria-hidden="true"></i>
+                <span>Assign</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="card text-center py-16">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-primary-500 mb-4" aria-hidden="true"></i>
+        <p class="text-gray-500 dark:text-gray-400">Loading asset details...</p>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading() && asset()">
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="flex gap-8">
+                <button (click)="setActiveTab('details')"
+                    [class]="activeTab() === 'details' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500  hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-info-circle w-4 h-4" aria-hidden="true"></i>
+                    <span>Asset Information</span>
+                </button>
+                <button (click)="setActiveTab('history')"
+                    [class]="activeTab() === 'history' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-history w-4 h-4" aria-hidden="true"></i>
+                    <span>Allocation History</span>
+                </button>
+                <button (click)="setActiveTab('maintenance')"
+                    [class]="activeTab() === 'maintenance' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'"
+                    class="py-4 px-1 border-b-2 font-medium text-sm transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-wrench w-4 h-4" aria-hidden="true"></i>
+                    <span>Maintenance</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="mt-6">
+            <!-- Details Tab -->
+            <div *ngIf="activeTab() === 'details'">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Main Info Card -->
+                    <div class="lg:col-span-2 card">
+                        <h2 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-6">Basic Information
+                        </h2>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Asset Name</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium">{{ asset()!.name }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Asset ID</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium font-mono">{{ asset()!.asset_id
+                                    }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Serial
+                                    Number</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium font-mono">{{
+                                    asset()!.serial_number }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Category</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium">{{ asset()!.category_name }}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
+                                <div class="mt-1">
+                                    <span [class]="getStatusBadgeClass(asset()!.status)"
+                                        class="px-3 py-1 rounded-full text-xs font-medium">
+                                        {{ asset()!.status }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Location</label>
+                                <p class="mt-1 text-gray-900 dark:text-white font-medium">{{ asset()!.location_name }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div *ngIf="asset()!.current_holder"
+                            class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+                            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Currently Assigned
+                                To</label>
+                            <div class="mt-2 flex items-center gap-2">
+                                <div
+                                    class="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-primary-600 dark:text-primary-400"
+                                        aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ asset()!.current_holder }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Employee</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Card -->
+                    <div class="card">
+                        <h2 class="text-lg font-bold font-heading text-gray-800 dark:text-white mb-4">Quick Actions</h2>
+                        <div class="space-y-3">
+                            <button
+                                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-left inline-flex items-center gap-3">
+                                <i class="fas fa-user-plus w-5 h-5 text-gray-600 dark:text-gray-400"
+                                    aria-hidden="true"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white text-sm">Assign Asset</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Allocate to an employee</p>
+                                </div>
+                            </button>
+                            <button
+                                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-left inline-flex items-center gap-3">
+                                <i class="fas fa-undo w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white text-sm">Mark as Returned</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Release from employee</p>
+                                </div>
+                            </button>
+                            <button
+                                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-left inline-flex items-center gap-3">
+                                <i class="fas fa-wrench w-5 h-5 text-gray-600 dark:text-gray-400"
+                                    aria-hidden="true"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white text-sm">Request Maintenance</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Log repair request</p>
+                                </div>
+                            </button>
+                            <button
+                                class="w-full px-4 py-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-left inline-flex items-center gap-3">
+                                <i class="fas fa-trash w-5 h-5 text-red-600 dark:text-red-400" aria-hidden="true"></i>
+                                <div>
+                                    <p class="font-medium text-red-900 dark:text-red-400 text-sm">Scrap Asset</p>
+                                    <p class="text-xs text-red-600 dark:text-red-500">Mark as scrapped</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div *ngIf="activeTab() === 'history'">
+                <div class="card p-0 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/5">
+                        <h2 class="text-lg font-bold font-heading text-gray-800 dark:text-white">Allocation History</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead
+                                class="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100/50 dark:border-gray-700/50">
+                                <tr>
+                                    <th
+                                        class="p-4 font-bold text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">
+                                        Employee</th>
+                                    <th
+                                        class="p-4 font-bold text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">
+                                        Assigned Date</th>
+                                    <th
+                                        class="p-4 font-bold text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">
+                                        Return Date</th>
+                                    <th
+                                        class="p-4 font-bold text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="p-4 font-bold text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">
+                                        Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                                    <td class="p-4 text-gray-900 dark:text-white font-medium" colspan="5">
+                                        <div class="text-center py-8">
+                                            <i class="fas fa-history text-4xl text-gray-300 dark:text-gray-600 mb-3"
+                                                aria-hidden="true"></i>
+                                            <p class="text-gray-500 dark:text-gray-400">No allocation history available
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Tab -->
+            <div *ngIf="activeTab() === 'maintenance'">
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold font-heading text-gray-800 dark:text-white">Maintenance Records
+                        </h2>
+                        <button class="btn-primary inline-flex items-center gap-2">
+                            <i class="fas fa-plus w-4 h-4" aria-hidden="true"></i>
+                            <span>Add Record</span>
+                        </button>
+                    </div>
+                    <div class="text-center py-12">
+                        <i class="fas fa-wrench text-4xl text-gray-300 dark:text-gray-600 mb-3" aria-hidden="true"></i>
+                        <p class="text-gray-500 dark:text-gray-400">No maintenance records found</p>
+                        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Add maintenance and repair history for
+                            this asset</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading() && !asset()" class="card text-center py-16">
+        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4" aria-hidden="true"></i>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Asset not found</p>
+        <button (click)="goBack()" class="mt-4 btn-primary inline-flex items-center gap-2">
+            <i class="fas fa-arrow-left w-4 h-4" aria-hidden="true"></i>
+            <span>Back to Inventory</span>
+        </button>
+    </div>
+</div>

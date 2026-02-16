@@ -1,0 +1,100 @@
+<div class="relative w-full" [class.opacity-60]="disabled" [class.pointer-events-none]="disabled">
+    <!-- Label -->
+    <label *ngIf="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {{ label }} <span *ngIf="required" class="text-red-500">*</span>
+    </label>
+
+    <!-- Trigger Button -->
+    <button type="button" (click)="toggle()" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
+        class="relative w-full bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg pl-3 pr-10 py-2.5 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all shadow-sm hover:border-gray-400 dark:hover:border-gray-500 flex items-center gap-2"
+        [class.ring-2]="isOpen" [class.ring-primary-500]="isOpen" [class.border-primary-500]="isOpen">
+
+        <!-- Selected Icon -->
+        <span *ngIf="selectedOption?.icon"
+            class="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-600">
+            <i [class]="selectedOption?.icon" class="text-xs"></i>
+        </span>
+
+        <span class="block truncate flex-1" [class.text-gray-400]="!selectedOption"
+            [class.text-gray-900]="selectedOption" [class.dark:text-white]="selectedOption">
+            {{ selectedOption ? selectedOption.label : placeholder }}
+        </span>
+
+        <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"
+                [class.rotate-180]="isOpen"></i>
+        </span>
+    </button>
+
+    <!-- Overlay Panel -->
+    <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen"
+        [cdkConnectedOverlayHasBackdrop]="true" [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+        [cdkConnectedOverlayWidth]="trigger.elementRef.nativeElement.getBoundingClientRect().width"
+        (backdropClick)="close()">
+
+        <div [style.width.px]="trigger.elementRef.nativeElement.getBoundingClientRect().width"
+            class="mt-1 bg-white dark:bg-dark-card shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 flex flex-col overflow-hidden animate-fade-in-up">
+
+            <!-- Search -->
+            <div *ngIf="searchable"
+                class="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" [ngModel]="searchTerm" (ngModelChange)="onSearch($event)"
+                        class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-gray-400"
+                        [placeholder]="searchPlaceholder" (click)="$event.stopPropagation()" autofocus>
+                </div>
+            </div>
+
+            <!-- Options List -->
+            <ul class="overflow-y-auto flex-1 py-1 custom-scrollbar">
+                <li *ngFor="let option of filteredOptions" (click)="select(option)"
+                    class="relative cursor-pointer select-none py-2.5 pl-3 pr-9 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+                    [class.bg-primary-50]="value === option.value" [class.dark:bg-primary-900]="value === option.value">
+
+                    <div class="flex items-center">
+                        <!-- Icon -->
+                        <span *ngIf="option.icon"
+                            class="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 mr-3 group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
+                            <i [class]="option.icon"></i>
+                        </span>
+
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <span class="block truncate font-medium text-gray-900 dark:text-gray-100"
+                                [class.font-semibold]="value === option.value"
+                                [class.text-primary-700]="value === option.value"
+                                [class.dark:text-primary-400]="value === option.value">
+                                {{ option.label }}
+                            </span>
+                            <span *ngIf="option.description"
+                                class="block text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                {{ option.description }}
+                            </span>
+                        </div>
+
+                        <!-- Badge -->
+                        <span *ngIf="option.badge"
+                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ml-2"
+                            [ngClass]="option.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'">
+                            {{ option.badge }}
+                        </span>
+                    </div>
+
+                    <!-- Checkmark -->
+                    <span *ngIf="value === option.value"
+                        class="text-primary-600 dark:text-primary-400 absolute inset-y-0 right-0 flex items-center pr-4">
+                        <i class="fas fa-check"></i>
+                    </span>
+                </li>
+
+                <!-- Empty State -->
+                <li *ngIf="filteredOptions.length === 0"
+                    class="text-gray-500 dark:text-gray-400 text-center py-6 text-sm flex flex-col items-center">
+                    <i class="fas fa-search mb-2 text-gray-300 dark:text-gray-600 text-xl"></i>
+                    No results found
+                </li>
+            </ul>
+        </div>
+    </ng-template>
+</div>

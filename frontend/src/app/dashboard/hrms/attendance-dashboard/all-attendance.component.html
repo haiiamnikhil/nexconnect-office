@@ -1,0 +1,298 @@
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">All Employees Attendance</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">View and manage attendance records across the
+                organization</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-3">
+            <input type="date" [(ngModel)]="filterDate" (change)="loadAttendance()"
+                class="px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm focus:ring-2 focus:ring-primary-500">
+
+            <input type="text" [(ngModel)]="searchQuery" (input)="filterData()" placeholder="Search employee..."
+                class="px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm focus:ring-2 focus:ring-primary-500 w-64">
+
+            <button *ngIf="authService.hasPermission('attendance:CREATE')" (click)="openPunchInModal()"
+                class="btn btn-primary">
+                <i class="fas fa-fingerprint mr-2"></i> Punch In
+            </button>
+
+            <button (click)="loadAttendance()" class="btn btn-secondary">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Overview (Optional) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div
+            class="card p-4 flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500">
+            <div>
+                <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">Present Today</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ stats().present }}</p>
+            </div>
+            <i class="fas fa-user-check text-2xl text-blue-300"></i>
+        </div>
+        <div
+            class="card p-4 flex items-center justify-between bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500">
+            <div>
+                <p class="text-xs font-bold text-yellow-600 dark:text-yellow-400 uppercase">Late Arrivals</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ stats().late }}</p>
+            </div>
+            <i class="fas fa-clock text-2xl text-yellow-300"></i>
+        </div>
+        <div class="card p-4 flex items-center justify-between bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
+            <div>
+                <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase">Absent</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ stats().absent }}</p>
+            </div>
+            <i class="fas fa-user-times text-2xl text-red-300"></i>
+        </div>
+        <div
+            class="card p-4 flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500">
+            <div>
+                <p class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase">On Leave</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ stats().onLeave }}</p>
+            </div>
+            <i class="fas fa-umbrella-beach text-2xl text-purple-300"></i>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Employee</th>
+                        <!-- <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th> -->
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date
+                        </th>
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Shift</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">In /
+                            Out</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Hours</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Status</th>
+                        <th
+                            class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                    <tr *ngFor="let record of filteredList()"
+                        (click)="openHistory(record.employee, record.employee_name || 'Employee')"
+                        class="hover:bg-gray-50/50 dark:hover:bg-active-card/20 transition-colors group cursor-pointer">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-xs font-bold">
+                                    {{ record.employee_name?.charAt(0) || 'U' }}
+                                </div>
+                                <div>
+                                    <p
+                                        class="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        {{ record.employee_name }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- <td class="p-4 text-sm text-gray-500 font-mono">EMP{{record.employee}}</td> -->
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-300">
+                            {{ record.date | date:'mediumDate' }}
+                        </td>
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-300">
+                            {{ record.shift_name || '-' }}
+                        </td>
+                        <td class="p-4">
+                            <div class="text-sm">
+                                <span class="text-green-600 dark:text-green-400 font-medium" title="Check In">
+                                    <i class="fas fa-sign-in-alt mr-1"></i> {{ (record.check_in | slice:0:5) || '--:--'
+                                    }}
+                                </span>
+                                <span class="mx-2 text-gray-300">|</span>
+                                <span class="text-red-500 dark:text-red-400 font-medium" title="Check Out">
+                                    {{ (record.check_out | slice:0:5) || '--:--' }} <i
+                                        class="fas fa-sign-out-alt ml-1"></i>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-sm font-mono text-gray-600 dark:text-gray-300">
+                            {{ record.working_hours || 0 }} hrs
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium border" [ngClass]="{
+                                    'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800': record.status === 'PRESENT',
+                                    'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800': record.status === 'ABSENT',
+                                    'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800': record.status === 'LATE' || record.status === 'HALF_DAY',
+                                    'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800': record.status === 'ON_LEAVE' || record.status === 'HOLIDAY'
+                                }">
+                                {{ record.status | titlecase }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button *ngIf="record.check_in && !record.check_out"
+                                    (click)="adminPunchOut(record, $event)" title="Punch Out User"
+                                    class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                                <button (click)="openEditModal(record, $event)" title="Edit Times"
+                                    class="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-white/10 rounded-lg transition-colors">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredList().length === 0" class="text-center">
+                        <td colspan="7" class="p-8 text-gray-500 dark:text-gray-400">
+                            No attendance records found for the selected date.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div *ngIf="selectedEmployeeId()"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in border border-gray-100 dark:border-white/10">
+            <!-- Modal Header -->
+            <div
+                class="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white font-heading">Attendance History</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Log used for {{ selectedEmployeeName() }}
+                        (Current Month)</p>
+                </div>
+                <button (click)="closeHistory()"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto p-0">
+                <div *ngIf="historyLoading()" class="flex flex-col items-center justify-center py-12">
+                    <i class="fas fa-circle-notch fa-spin text-3xl text-primary-500 mb-3"></i>
+                    <p class="text-gray-500">Loading history...</p>
+                </div>
+
+                <table *ngIf="!historyLoading()" class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-white dark:bg-dark-card shadow-sm z-10">
+                        <tr class="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
+                            <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                            <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">In / Out</th>
+                            <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Hours</th>
+                            <th class="p-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                        <tr *ngFor="let log of employeeHistory()" class="hover:bg-gray-50 dark:hover:bg-white/5">
+                            <td class="p-4 text-sm text-gray-800 dark:text-gray-200 font-medium">{{ log.date |
+                                date:'mediumDate' }}</td>
+                            <td class="p-4 text-sm">
+                                <span class="text-green-600 font-mono">{{ (log.check_in | slice:0:5) || '--:--'
+                                    }}</span>
+                                <span class="mx-2 text-gray-300">/</span>
+                                <span class="text-red-500 font-mono">{{ (log.check_out | slice:0:5) || '--:--' }}</span>
+                            </td>
+                            <td class="p-4 text-sm font-bold text-gray-700 dark:text-gray-300">{{ log.working_hours || 0
+                                }}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="{
+                                        'bg-green-100 text-green-700': log.status === 'PRESENT',
+                                        'bg-red-100 text-red-700': log.status === 'ABSENT',
+                                        'bg-yellow-100 text-yellow-700': log.status === 'LATE' || log.status === 'HALF_DAY',
+                                        'bg-purple-100 text-purple-700': ['ON_LEAVE','HOLIDAY'].includes(log.status)
+                                    }">
+                                    {{ log.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="employeeHistory().length === 0">
+                            <td colspan="4" class="p-8 text-center text-gray-500">No logs found for this month.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div
+                class="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex justify-end">
+                <button (click)="closeHistory()" class="btn btn-secondary px-6">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Modal -->
+    <div *ngIf="showEditModal()"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-md animate-scale-in border border-gray-100 dark:border-white/10">
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Edit Attendance</h3>
+                <button (click)="closeEditModal()" class="text-gray-400 hover:text-gray-500"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Check In Time</label>
+                    <input type="time" [ngModel]="editForm().check_in" (ngModelChange)="editForm().check_in = $event"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Check Out Time</label>
+                    <input type="time" [ngModel]="editForm().check_out" (ngModelChange)="editForm().check_out = $event"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 focus:ring-2 focus:ring-primary-500">
+                </div>
+            </div>
+            <div class="p-6 pt-0 flex justify-end gap-3">
+                <button (click)="closeEditModal()" class="btn btn-secondary">Cancel</button>
+                <button (click)="saveEdit()" class="btn btn-primary" [disabled]="isLoading()">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Punch In Modal -->
+    <div *ngIf="showPunchInModal()"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-md animate-scale-in border border-gray-100 dark:border-white/10">
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Manual Punch In</h3>
+                <button (click)="closePunchInModal()" class="text-gray-400 hover:text-gray-500"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <app-dropdown label="Select Employee" [options]="employeeOptions()"
+                        [ngModel]="punchInForm().employeeId" (ngModelChange)="punchInForm().employeeId = +$event"
+                        placeholder="Choose an employee" [searchable]="true">
+                    </app-dropdown>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Check In Time</label>
+                    <input type="time" [ngModel]="punchInForm().check_in"
+                        (ngModelChange)="punchInForm().check_in = $event"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 focus:ring-2 focus:ring-primary-500">
+                    <p class="text-xs text-gray-400 mt-1">Leave empty for current time</p>
+                </div>
+            </div>
+            <div class="p-6 pt-0 flex justify-end gap-3">
+                <button (click)="closePunchInModal()" class="btn btn-secondary">Cancel</button>
+                <button (click)="savePunchIn()" class="btn btn-primary"
+                    [disabled]="isLoading() || !punchInForm().employeeId">
+                    <i class="fas fa-fingerprint mr-2"></i> Punch In
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

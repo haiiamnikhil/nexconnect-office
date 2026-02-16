@@ -1,0 +1,105 @@
+<div class="space-y-6 animate-fade-in p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-gray-800 dark:text-white">Clearance Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Process exit clearances for offboarding employees.
+            </p>
+        </div>
+    </div>
+
+    <!-- Clearance Requests -->
+    <div class="space-y-6">
+        <div *ngFor="let req of requests()" class="card p-0 overflow-hidden">
+            <div
+                class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-white/5 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold font-heading text-gray-900 dark:text-white">{{ req.employee_name }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Last Day: {{ req.last_working_day | date }}</p>
+                </div>
+                <span class="text-xs font-mono text-gray-400">#{{ req.id }}</span>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div *ngFor="let clearance of req.clearances"
+                        class="p-4 rounded-lg border flex flex-col justify-between h-32 transition-all hover:shadow-md cursor-pointer"
+                        [ngClass]="{
+                            'border-green-200 bg-green-50/50 dark:bg-green-900/10 dark:border-green-800': clearance.status === 'CLEARED',
+                            'border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700': clearance.status === 'PENDING',
+                            'border-red-200 bg-red-50/50 dark:bg-red-900/10 dark:border-red-800': clearance.status === 'REJECTED'
+                        }">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">{{
+                                    clearance.department }}</span>
+                                <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full border"
+                                    [ngClass]="{
+                                        'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400': clearance.status === 'CLEARED',
+                                        'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400': clearance.status === 'PENDING',
+                                        'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400': clearance.status === 'REJECTED'
+                                    }">{{ clearance.status }}</span>
+                            </div>
+                            <p *ngIf="clearance.remarks"
+                                class="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">"{{ clearance.remarks
+                                }}"</p>
+                        </div>
+
+                        <button *ngIf="clearance.status === 'PENDING'" (click)="openClearanceModal(clearance)"
+                            class="w-full mt-2 btn-primary text-xs py-1.5">
+                            Process Clearance
+                        </button>
+                        <div *ngIf="clearance.status === 'CLEARED'"
+                            class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Cleared by {{ clearance.cleared_by_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="requests().length === 0"
+            class="card text-center py-12 bg-gray-50 dark:bg-gray-800/50 border-dashed">
+            <i class="fas fa-clipboard-check text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
+            <p class="text-gray-500 dark:text-gray-400">No active offboarding requests.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Clearance Action Modal -->
+<div *ngIf="showModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+        class="bg-white dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-xl font-bold font-heading text-gray-800 dark:text-white">Process Clearance</h3>
+            <button (click)="closeModal()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Department: <span class="font-bold">{{
+                        selectedClearance()?.department }}</span></p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Action: <span
+                        class="font-bold text-green-600">Approve Clearance</span></p>
+            </div>
+
+            <div class="mb-4 space-y-1">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+                <textarea [(ngModel)]="remarks" rows="3" class="input resize-none"
+                    placeholder="e.g. All assets returned"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <button (click)="closeModal()" class="btn-secondary">Cancel</button>
+                <button (click)="submitClearance(true)"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-check"></i> Confirm Clearance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
